@@ -8,7 +8,6 @@ module LS_buff(
 	input valid6,
 	input valid7,
 	input valid8,
-	input valid9,
 	input cdb1,
 	input cdb2,
 	input cdb3,
@@ -29,7 +28,14 @@ module LS_buff(
 	input Qi_in,
 	output rd_addr,
 	output wr_addr,
-	output wen
+	output data_out,
+	output wen,
+	output valid_out0,
+	output valid_out1,
+	output valid_out2,
+	output valid_out3,
+	output valid_out4,
+	output valid_out5
 );
 
 localparam ENTRY0=0,ENTRY1=1,ENTRY2=2,ENTRY3=3,ENTRY4=4,ENTRY5=5;
@@ -44,6 +50,7 @@ reg [:] Vi_next [0:5];
 reg [:] Qi [0:5];
 reg [:] Qi_next [0:5];
 reg  Op[0:5];
+reg vadid[0:5]
 
 always@(posedge clk)begin
 	if(~rst_n)begin
@@ -433,5 +440,70 @@ always@(*)begin
                 end
 	endcase
 end
+
+//head logic
+//use a FSM to keep track of the state of the head and control busy values and
+//head values
+localparam IDLE;WAIT=1, EXE=2;
+reg state_o,next_state_o;
+reg exe_count,exe_count_next;
+always@(posedge clk)begin
+	if(~rst_n)begin 
+		state_o <= IDLE;
+		head <= 0;
+		exe_count <= 0;
+	end else begin
+		state_o <= next_state_o; 
+		head <= head_next;
+		exe_count_next <= exe_count_next;
+	end
+end
+
+always@(*)begin
+	case(state_o)
+		IDLE:	begin
+					
+					head_next = head;
+					exe_count_next = 2;//load exe time
+					if(sel)begin end
+						next_state_o = WAIT;
+					else begin
+						next_state_o = IDLE;
+					end
+				end
+		WAIT:	begin
+					head_next = head;
+					exe_count_next = 2;
+					if(Q[head]==0)
+						next_state_o = EXE;
+					else
+						next_state_o = WAIT;
+				end
+		EXE:	begin
+					exe_count_next = exe_count - 1;
+					if(exe_count==0)begin
+						head_next = (head==5)?0:head+1;
+						next_state_o = EXE;
+					end else begin
+						head_next = head;
+						next_state_o = EXE;
+					end		
+				end
+	endcase
+end
+//output logic
+//use head value to determine where  output valus come from and validity
+assign rd_addr = address[head],
+assign wr_addr = address[head],
+assign wen
+assign data_out,
+assign valid_out0 = (head==0&&exe_count==0)1:0;
+assign valid_out1 =
+assign valid_out2 =
+assign valid_out3 =
+assign valid_out4 =
+assign valid_out5 =
+
+//one valid for each entry
 
 endmodule

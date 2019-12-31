@@ -17,6 +17,24 @@ module RS_top(
 	input s1,//value from register file
 	input s2,
 	input rename_ctrl,
+//common data bus
+
+    input valid1,
+    input valid2,
+    input valid3,
+    input valid4,
+    input valid5,
+    input valid6,
+    input valid7,
+    input valid8,
+    input cdb1,
+    input cdb2,
+    input cdb3,
+    input cdb4,
+    input cdb5,
+    input cdb6,
+    input cdb7,
+    input cdb8,
 
 	output ADD1_Vj,
 	output ADD1_Vk,

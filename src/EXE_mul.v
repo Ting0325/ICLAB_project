@@ -1,6 +1,6 @@
 /*
  * multipiler that takes 10 cycles;
- *
+ * divider takes 40 cycles
  *
  *
  * */
@@ -47,8 +47,13 @@ always@(*)begin
 		IDLE:	begin
 					if(start)begin
 						next_state = BUSY;
-						result_next = a*b;
-						counter_next = counter;
+						if(Op==0)begin
+							result_next = a*b;
+							counter_next = 10;
+						end else begin
+							result_next = a/b;
+							counter_next = 40
+						end
 					end else begin
 						next_state = IDLE;
 						result_next = result;
@@ -56,9 +61,9 @@ always@(*)begin
 					end
 				end
 		BUSY:	begin
-					counter_next = counter + 1;
+					counter_next = counter - 1;
 					result_next = result;
-					if(counter == 10)begin
+					if(counter == 0)begin
 						next_state = IDLE;
 					end else begin
 						next_state = BUSY;
