@@ -1,7 +1,7 @@
 module top(
 	input clk,
 	input rst_n,
-	input [20:0]i_instruction,
+	input [31:0]i_instruction,
 	input [5:0] i_addr,
 	input i_wea,
 	input start
@@ -69,7 +69,7 @@ regfile regfile0(
 	.read_data1(rs1_data),
 // Port Read 2
 	.read_addr2(rs2),
-	.read_data2(rs1_data),
+	.read_data2(rs2_data),
 // Port Write
 	.write_addr(),
 	.write_data(),
@@ -78,53 +78,72 @@ regfile regfile0(
 //order manager
 	//renaming table
 	//reorder buffer 
-order_manager order_manager0(
-
-);
+order_manager order_manager(
+	.clk(clk),
+	.rst_n(rst_n),
+	.instruction(instruction),
+    //busy info from reservation stations
+	.ls_entry(),
+	.ls_full(),
+	.busy_add1(),
+	.busy_add2(),
+	.busy_add3(),
+	.busy_mul1(),
+	.busy_mul1(),
+	.cdb(),
+	.commit_idx(),
+	.commit_data(),
+	.commit_wen(),
+	.Qj(),
+	.Qk(),
+    .rs_idx(),
+    .struct_haz()
+    
+    );
+    //
 //reservation stations
 RS RS0(
 	.clk(clk),
 	.rst_n(rsn),
-	.operation(),
-	.s1(),//value from register file
-	.s2(),
-	.rename_ctrl(),
+	.operation(operation),
+	.s1(rs1_data),//value from register file
+	.s2(rs2_data),
+//rename
+	.Qj(),
+	.Qk(),
 //common data bus
-	.valid1(),
-	.valid2(),
-	.valid3(),
-	.valid4(),
-	.valid5(),
-	.valid6(),
-	.valid7(),
-	.valid8(),
-	.cdb1(),
-	.cdb2(),
-	.cdb3(),
-	.cdb4(),
-	.cdb5(),
-	.cdb6(),
-	.cdb7(),
-	.cdb8(),
+	.ADD1_valid(),
+	.ADD1_result(),
+	.ADD2_valid(),
+	.ADD2_result(),
+	.ADD3_valid(),
+	.ADD3_result(),
+	.MULT1_valid(),
+	.MULT1_result(),
+	.MULT1_valid(),
+	.MULT2_result(),
+	.LS_valid(),
+	.LS_value(),
+	.LS_idx(),
+//outputs to EXE
+	.ADD1_Vj(ADD1_Vj),
+	.ADD1_Vk(ADD1_Vk),
+	.ADD1_Op(ADD1_op),
+	.ADD2_Vj(ADD2_Vj),
+	.ADD2_Vk(ADD2_Vk),
+	.ADD2_Op(ADD2_op),
+	.ADD3_Vj(ADD3_Vj),
+	.ADD3_Vk(ADD3_Vk),
+	.ADD3_Op(ADD2_op),
 
-	.ADD1_Vj(),
-	.ADD1_Vk(),
-	.ADD1_Op(),
-	.ADD2_Vj(),
-	.ADD2_Vk(),
-	.ADD2_Op(),
-	.ADD3_Vj(),
-	.ADD3_Vk(),
-	.ADD3_Op(),
+	.MULT1_Vj(MULT1_Vj),
+	.MULT1_Vk(MULT1_Vk),
+	.MULT1_Op(MULT1_op),
+	.MULT2_Vj(MULT2_Vj),
+	.MULT2_Vk(MULT2_Vk),
+	.MULT2_Op(MULT2_op),
 
-	.MULT1_Vj(),
-	.MULT1_Vk(),
-	.MULT1_Op(),
-	.MULT1_Vj(),
-	.MULT1_Vk(),
-	.MULT1_Op(),
-
-	.LOAD1_addr(),
+/*	.LOAD1_addr(),
 	.LOAD2_addr(),
 	.LOAD3_addr(),
 
@@ -134,7 +153,10 @@ RS RS0(
 	.STORE2_Qi(),
 	.STORE3_addr(),
 	.STORE3_Qi()
-
+*/
+.LS_addr()
+.LS_data()
+.LS_wen()
 );
 
 //execution unit

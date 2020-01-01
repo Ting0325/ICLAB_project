@@ -18,7 +18,7 @@ module order_manager(
 	input busy_add2,
 	input busy_add3,
 	input busy_mul1,
-	input busy_mul1,	
+	input busy_mul2,	
 	//input cdb
 	output commit_idx,
 	output commit_data,
