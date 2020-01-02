@@ -14,55 +14,46 @@ module RS_top(
 	input clk,
 	input rst_n,
 	input operation,
-	input s1,//value from register file
-	input s2,
-	input rename_ctrl,
+	input [4:0] rs1_data, //value from register file
+	input [4:0] rs2_data,
+
+	input [4:0] Qj, Qk;
+
 //common data bus
+	input ADD1_valid,
+	input [31:0] ADD1_result,
+	input ADD2_valid,
+	input [31:0] ADD2_result,
+	input ADD3_valid,
+	input [31:0] ADD3_result,
+	input MULT1_valid,
+	input [31:0] MULT1_result,
+	input MULT2_valid,
+	input [31:0] MULT2_result,
+	input LS_valid,
+	input [31:0] LS_value,
+	input [2:0] LS_idx,
 
-    input valid1,
-    input valid2,
-    input valid3,
-    input valid4,
-    input valid5,
-    input valid6,
-    input valid7,
-    input valid8,
-    input cdb1,
-    input cdb2,
-    input cdb3,
-    input cdb4,
-    input cdb5,
-    input cdb6,
-    input cdb7,
-    input cdb8,
+	output [31:0]ADD1_Vj,
+	output [31:0]ADD1_Vk,
+	output [3:0] ADD1_Op,
+  output [31:0]ADD2_Vj,
+  output [31:0]ADD2_Vk,
+  output [3:0] ADD2_Op,
+  output [31:0]ADD3_Vj,
+  output [31:0]ADD3_Vk,
+  output [3:0] ADD3_Op,
 
-	output ADD1_Vj,
-	output ADD1_Vk,
-	output ADD1_Op,
-    output ADD2_Vj,
-    output ADD2_Vk,
-    output ADD2_Op,
-    output ADD3_Vj,
-    output ADD3_Vk,
-    output ADD3_Op,
-
-	output MULT1_Vj,
-    output MULT1_Vk,
-    output MULT1_Op,
-	output MULT1_Vj,
-    output MULT1_Vk,
-    output MULT1_Op,
-
-	output LOAD1_addr,
-	output LOAD2_addr,
-	output LOAD3_addr,
+	output [31:0]MULT1_Vj,
+  output [31:0]MULT1_Vk,
+  output [3:0] MULT1_Op,
+	output [31:0]MULT2_Vj,
+  output [31:0]MULT2_Vk,
+  output [3:0] MULT2_Op,
 	
-	output STORE1_addr,
-	output STORE1_Qi,
-	output STORE2_addr,
-    output STORE2_Qi,
-	output STORE3_addr,
-    output STORE3_Qi
+	output LS_addr,
+	output LS_data,
+	output LS_wen
 
 );
 
@@ -97,12 +88,23 @@ reg STORE2_addr,
 reg STORE2_Qi,
 reg STORE3_addr,
 reg STORE3_Qi,
+
+wire sel_load_store, sel_add1, sel_add2, sel_add3, sel_mul1, sel_mul2;
+
+assign sel_load_store = (sel>0 && sel<7)?1:0;
+assign sel_add1 = (sel==7)?1:0;
+assign sel_add2 = (sel==8)?1:0;
+assign sel_add3 = (sel==9)?1:0;
+assign sel_mul1 = (sel==10)?1:0;
+assign sel_mul2 = (sel==11)?1:0;
+
+
 //load store buffers
 //
 RS_arith RS_add1(
 	.clk(clk),
     .rst_n(rst_n),
-    .sel(),
+    .sel(sel_add1),
     .Op_in(),
     .Vj_valid(),
     .Vj_in(),
@@ -118,7 +120,7 @@ RS_arith RS_add1(
 RS_arith RS_add2(
     .clk(clk),
     .rst_n(rst_n),
-    .sel(),
+    .sel(sel_add2),
     .Op_in(),
     .Vj_valid(),
     .Vj_in(),
@@ -134,7 +136,7 @@ RS_arith RS_add2(
 RS_arith RS_add3(
     .clk(clk),
     .rst_n(rst_n),
-    .sel(),
+    .sel(sel_add3),
     .Op_in(),
     .Vj_valid(),
     .Vj_in(),
@@ -150,7 +152,7 @@ RS_arith RS_add3(
 RS_arith RS_mul1(
     .clk(clk),
     .rst_n(rst_n),
-    .sel(),
+    .sel(sel_mul1),
     .Op_in(),
     .Vj_valid(),
     .Vj_in(),
@@ -166,7 +168,7 @@ RS_arith RS_mul1(
 RS_arith RS_mul2(
     .clk(clk),
     .rst_n(rst_n),
-    .sel(),
+    .sel(sel_mul2),
     .Op_in(),
     .Vj_valid(),
     .Vj_in(),

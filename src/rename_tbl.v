@@ -7,12 +7,15 @@
 module rename_tbl(
 	input clk,
 	input rst_n,
-	input new_name_in,
-	input new_name_index,
-	input rs1,
-	input rs2
-	output Qj,
-	output Qk
+	input [3:0] new_name_in,     //assigned reservation station from inst_handler during issue
+	input [4:0] new_name_index,	//destination of incoming inst.
+	input [4:0] to_zero_index,   //the <dest> field of a committing reorder buffer entry
+	input [3:0] original_name,		//the <from> field of a committing reorder buffer entry
+	input commit,         //whether a commit is happening 
+	input [4:0] rs1,
+	input [4:0] rs2,
+	output [3:0] Qj,
+	output [3:0] Qk
 );
 
 
@@ -21,7 +24,9 @@ module rename_tbl(
  *
  *
  * */
-reg [:] name [0:31];
+reg [3:0] name [0:31];
+
+
 always@(posedge clk)begin
 	if(rst_n)begin 
 		name[0] <= 0;
@@ -56,8 +61,18 @@ always@(posedge clk)begin
 		name[29] <= 0;
 		name[30] <= 0;
 		name[31] <= 0;					
-	end else begin 
-		name[new_name_index] <= name[new_name_in];
+	end 
+	else begin 
+		if((name[to_zero_index] == original_name) && commit && to_zero_index!=new_name_index) begin //the name hasn't been modified by later inst. in the reorder buffer
+			name[to_zero_index] <= 0;
+			name[new_name_index] <= new_name_in;
+		end
+		else //if((name[to_zero_index] == original_name) && commit && to_zero_index==new_name_index) //issue and commit has the same destination register
+			name[new_name_index] <= new_name_in;
+		/*
+		else //if((name[to_zero_index] != original_name) || !commit) 
+			name[new_name_index] <= new_name_in;
+		*/
 	end
 end
 assign Qj = name[rs1];

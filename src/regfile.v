@@ -8,10 +8,10 @@ module regfile
   input               rst_n,
   // Port Read 1
   input [aw-1:0]      read_addr1,
-  output [dw-1:0] read_data1,
+  output [dw-1:0]     read_data1,
   // Port Read 2
   input [aw-1:0]      read_addr2,
-  output  [dw-1:0] read_data2,
+  output  [dw-1:0]    read_data2,
   // Port Write
   input [aw-1:0]      write_addr,
   input [dw-1:0]      write_data,

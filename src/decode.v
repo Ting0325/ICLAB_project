@@ -17,7 +17,7 @@
  * */
 module decoder(
 	input [31:0] instruction,
-	output reg [6:0] operation,
+	output reg [3:0] operation,
 	output [4:0] rd,
 	output [4:0] rs1,
 	output [4:0] rs2,
@@ -35,12 +35,21 @@ assign rs1 = instruction[19:15];
 assign rs2 = instruction[24:20];
 assign funct7 = instruction[31:25];
 assign imm = instruction[31:20];
-always@(*){
-	case({funct7,funct3,opcode})
-		13'b0000000_000_0110011://ADD
-		13'b0100000_000_0110011://SUB
-				
-	endcase
-}
+
+
+always@(*) begin
+		case(opcode)
+			7'b0110011: begin 
+									 case ({funct7,funct3})
+											10'b0000000_000 : operation = 0; //ADD
+											10'b0100000_000 : operation = 1; //SUB
+											10'b0000001_000 : operation = 2; //MUL
+											10'b0100001_100 : operation = 3; //DIV
+									 endcase
+								 end
+			7'b0000011: operation = 4; //LOAD
+ 			7'b0100011: operation = 5; //STORE	
+		endcase
+end
 
 endmodule

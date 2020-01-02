@@ -51,6 +51,7 @@ wire [31:0] MULT2_op;
 wire [31:0] dina;
 wire [18:0] addra, addrb;
 wire wea; 
+
 //order manager
 wire [2:0] ls_entry;
 wire ls_full;
@@ -62,7 +63,7 @@ wire [3:0] Qj, Qk; //renamed value
 
 
 
-wire operation;
+wire [3:0] operation;
 
 //pc
 always@(posedge clk) begin
@@ -113,6 +114,7 @@ order_manager order_manager(
 	.clk(clk),
 	.rst_n(rst_n),
 	.instruction(instruction),
+	.operation(operation),
     //busy info from reservation stations
 	.ls_entry(ls_entry),
 	.ls_full(ls_full),
@@ -138,6 +140,8 @@ order_manager order_manager(
 	.LS_valid(LS_valid),
 	.LS_value(LS_value),
 	.LS_idx(LS_idx),
+	.rs1(rs1),
+	.rs2(rs2),
 	
 	.Qj(Qj),
 	.Qk(Qk),
@@ -147,12 +151,12 @@ order_manager order_manager(
     );
     
 //reservation stations
-RS RS0(
+RS_top RS_top0(
 	.clk(clk),
 	.rst_n(rsn),
 	.operation(operation),
-	.s1(rs1_data),//value from register file
-	.s2(rs2_data),
+	.rs1_data(rs1_data),//value from register file
+	.rs2_data(rs2_data),
 //rename
 	.Qj(Qj),
 	.Qk(Qk),

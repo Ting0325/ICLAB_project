@@ -2,10 +2,10 @@ module RS_arith(
 	input clk,
 	input rst_n,
 	input sel,
-	input [:] Op_in,
-	input [31:0] Vj_valid,
+	input [2:0] Op_in,
+	input Vj_valid,
 	input [31:0] Vj_in,
-	input [31:0] Vk_valid,
+	input Vk_valid,
 	input [31:0] Vk_in,
 	input [31:0] Qj_in,
 	input [31:0] Qk_in,
@@ -33,7 +33,7 @@ end
 //next state logic
 always@(*)begin
 	case(state)
-		IDLE:	begin
+		IDLE:	begin                       //instruction issue to reservation station
 					if(sel)begin
 						next_state = WAIT;
 						timer_next = 2;
@@ -55,21 +55,27 @@ always@(*)begin
 					if(Qj==0&&Qk==0)begin
 						next_state = EXE;
 						Vj_next = Vj;
-                    	Vk_next = Vk;
-                    	Qj_next = Qj;
-                    	Qk_next = Qk;
-					end else if(Qj==0&&Vk_valid==1)begin 
+             	Vk_next = Vk;
+              Qj_next = Qj;
+             	Qk_next = Qk;
+					end else if(Qj==0 && Qk!=0 && Vk_valid==1)begin 
 						next_state = EXE;
 	                    Vj_next = Vj;
 	                    Vk_next = Vk_in;
     	                Qj_next = Qj;
         	            Qk_next = 0;
-					end else if(Qk==0&&Vj_valid==1))begin
+					end else if(Qk==0 && Qj!=0 && Vj_valid==1))begin
 						next_state = EXE;
 						Vj_next = Vj_in;
                     	Vk_next = Vk;
                     	Qj_next = 0;
                     	Qk_next = Qk;
+					end else if(Qk!=0 && Qj!=0 && Vj_valid==1 && Vk_valid==1))begin
+						next_state = EXE;
+						Vj_next = Vj_in;
+                    	Vk_next = Vk_in;
+                    	Qj_next = 0;
+                    	Qk_next = 0;
 					else begin
 						next_state = WAIT;
 	                    Vj_next = Vj;
