@@ -37,19 +37,19 @@ module RS_top(
 	output [31:0]ADD1_Vj,
 	output [31:0]ADD1_Vk,
 	output [3:0] ADD1_Op,
-  output [31:0]ADD2_Vj,
-  output [31:0]ADD2_Vk,
-  output [3:0] ADD2_Op,
-  output [31:0]ADD3_Vj,
-  output [31:0]ADD3_Vk,
-  output [3:0] ADD3_Op,
+	output [31:0]ADD2_Vj,
+	output [31:0]ADD2_Vk,
+	output [3:0] ADD2_Op,
+	output [31:0]ADD3_Vj,
+	output [31:0]ADD3_Vk,
+	output [3:0] ADD3_Op,
 
 	output [31:0]MULT1_Vj,
-  output [31:0]MULT1_Vk,
-  output [3:0] MULT1_Op,
+	output [31:0]MULT1_Vk,
+	output [3:0] MULT1_Op,
 	output [31:0]MULT2_Vj,
-  output [31:0]MULT2_Vk,
-  output [3:0] MULT2_Op,
+	output [31:0]MULT2_Vk,
+	output [3:0] MULT2_Op,
 	
 	output LS_addr,
 	output LS_data,
@@ -97,8 +97,41 @@ assign sel_add2 = (sel==8)?1:0;
 assign sel_add3 = (sel==9)?1:0;
 assign sel_mul1 = (sel==10)?1:0;
 assign sel_mul2 = (sel==11)?1:0;
-
-
+//Vj Vk  valid logic
+//Vj_ADD1
+always@(*)begin
+	if(sel_add1 && Qj==0)begin
+		Vj_add1 = Vj;
+		Vj_valid_add1 = 1;
+/*
+	end else if(sel_add1 && Qj!=0)begin
+		Vj_add1 = 0;
+		Vj_valid_add1 = 0;
+*/
+	end else if(~sel_add1 && Qj_add1==LS_idx && LS_valid)begin//Qj==1,2,3,4,5,6
+        Vj_add1 = LS_value;
+        Vj_valid_add1 =  1;
+	end else if(~sel_add1 && Qj_add1==7 && ADD1_valid)begin//Qj==7
+        Vj_add1 = ADD1_result11;
+        Vj_valid_add1 = 1;
+	end end else if(~sel_add1 && Qj_add1==8 && ADD2_valid)begin//Qj==8
+        Vj_add1 = ADD2_result;
+        Vj_valid_add1 = 1;
+	end else if(~sel_add1 && Qj_add1==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
+        Vj_add1 = ADD3_result;
+        Vj_valid_add1 = 1;
+	end else if(~sel_add1 && Qj_add1==10 && MUL1_valid)begin//Qj==10 ,wainting for value from MUL1
+        Vj_add1 = MUL1_result;
+        Vj_valid_add1 = 1;
+  	end else if(~sel_add1 && Qj_add1==10 && MUL2_valid)begin//Qj==11 ,wainting for value from MUL1
+        Vj_add1 = MUL2_result;
+        Vj_valid_add1 = 1;
+	else begin
+        Vj_add1 = 0;
+        Vj_valid_add1 = 0;
+	end
+end
+//...
 //load store buffers
 //
 RS_arith RS_add1(
@@ -107,13 +140,15 @@ RS_arith RS_add1(
     .sel(sel_add1),
     .Op_in(),
     .Vj_valid(),
-    .Vj_in(),
+    .Vj_in(Vj_add1),
     .Vk_valid(),
     .Vk_in(),
     .Qj_in(),
     .Qk_in(),
     .Vj(),
     .Vk(),
+	.Qj(),   //for Vj_valid control in RS_top 
+    .Qk(),
     .busy()
 );
 
