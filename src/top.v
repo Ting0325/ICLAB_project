@@ -47,6 +47,13 @@ wire [31:0] MULT1_op;
 wire [31:0] MULT2_Vj;
 wire [31:0] MULT2_Vk;
 wire [31:0] MULT2_op;
+
+wire ADD1_busy;
+wire ADD2_busy;
+wire ADD3_busy;
+wire MUL1_busy;
+wire MUL2_busy;
+
 //d_cache
 wire [31:0] dina;
 wire [18:0] addra, addrb;
@@ -60,6 +67,8 @@ wire busy_mul1, busy_mul2;
 wire struct_haz;
 wire [3:0] rs_idx;
 wire [3:0] Qj, Qk; //renamed value
+
+
 
 
 
@@ -145,8 +154,8 @@ order_manager order_manager(
 	
 	.Qj(Qj),
 	.Qk(Qk),
-  .rs_idx(rs_idx),
-  .struct_haz(struct_haz)
+    .rs_idx(rs_idx),
+  	.struct_haz(struct_haz)
     
     );
     
@@ -195,6 +204,11 @@ RS_top RS_top0(
 	.LS_addr(addr_dcache)
 	.LS_data(dina)
 	.LS_wen(wea)
+	.ADD1_busy()
+	.ADD2_busy()
+	.ADD3_busy()
+	.MUL1_busy()
+	.MUL2_busy()
 );
 
 //execution unit

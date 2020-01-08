@@ -1,5 +1,5 @@
 module reorder_buff_entry#(
-	parameter entry_number = 1,
+	parameter entry_number = 1
 )
 (
 	input clk,

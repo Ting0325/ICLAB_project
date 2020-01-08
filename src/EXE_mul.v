@@ -52,7 +52,7 @@ always@(*)begin
 							counter_next = 10;
 						end else begin
 							result_next = a/b;
-							counter_next = 40
+							counter_next = 40;
 						end
 					end else begin
 						next_state = IDLE;

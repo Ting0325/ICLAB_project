@@ -14,7 +14,7 @@ module order_manager(
 	input [3:0] operation,
 	//busy info from reservation stations
 	input ls_entry,
-  input ls_full,
+    input ls_full,
 	input busy_add1,
 	input busy_add2,
 	input busy_add3,
@@ -43,7 +43,7 @@ module order_manager(
 	output [3:0] Qj,
 	output [3:0] Qk,
 	output [3:0] rs_idx,
-	output struct_haz	
+	output struct_haz
 );
 
 //wires for busy signals from reorder buffer

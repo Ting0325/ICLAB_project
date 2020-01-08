@@ -23,7 +23,8 @@ module rename_tbl(
  * register is already valid
  *
  *
- * */
+ * 
+ */
 reg [3:0] name [0:31];
 
 

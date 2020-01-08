@@ -45,6 +45,8 @@ module reorder_buff_top(
 	
 );
 
+//localparam entry_number_0 = 0 , entry_number_1 = 1, entry_number_2 = 2, entry_number_3 = 3;
+
 reg [3:0] waiting_for0, waiting_for1, waiting_for2, waiting_for3, waiting_for4, waiting_for5, waiting_for6, waiting_for7;
 reg valid0, valid1,  valid2, valid3, valid4, valid5, valid6, valid7;
 reg [31:0] value0, value1,  value2, value3, value4, value5, value6, value7;
@@ -377,7 +379,7 @@ end
 
 //reorder buffer entries
 reorder_buff_entry rb0#(
-	entry_number = 0
+	.entry_number(0)
 )
 (
 	.clk(clk),
@@ -395,7 +397,7 @@ reorder_buff_entry rb0#(
 );
 
 reorder_buff_entry rb1#(
-	entry_number = 1
+	.entry_number(1)
 )
 (
 	.clk(clk),
@@ -413,7 +415,7 @@ reorder_buff_entry rb1#(
 );
 
 reorder_buff_entry rb2#(
-	entry_number = 2
+	.entry_number(2)
 )
 (
 	.clk(clk),
@@ -431,7 +433,7 @@ reorder_buff_entry rb2#(
 );
 
 reorder_buff_entry rb3#(
-	entry_number = 3
+	.entry_number(3)
 )
 (
 	.clk(clk),
@@ -449,7 +451,7 @@ reorder_buff_entry rb3#(
 );
 
 reorder_buff_entry rb4#(
-	entry_number = 4
+	.entry_number(4)
 )
 (
 	.clk(clk),
@@ -467,7 +469,7 @@ reorder_buff_entry rb4#(
 );
 
 reorder_buff_entry rb5#(
-	entry_number = 5
+	.entry_number(5)
 )
 (
 	.clk(clk),
@@ -485,7 +487,7 @@ reorder_buff_entry rb5#(
 );
 
 reorder_buff_entry rb6#(
-   entry_number = 3
+   .entry_number(6)
 )
 (
 	.clk(clk),
@@ -503,7 +505,7 @@ reorder_buff_entry rb6#(
 );
 
 reorder_buff_entry rb7#(
-   entry_number = 3
+   .entry_number(7)
 )
 (
 	.clk(clk),
