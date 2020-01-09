@@ -8,7 +8,7 @@ module EXE_mul(
 	input clk,
 	input rst_n,
 	input start,
-	input Op,
+	input [2:0] Op,
 	input [31:0] a,
 	input [31:0] b,
 	output valid,

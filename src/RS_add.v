@@ -8,22 +8,22 @@ module RS_add
 	input [31:0] Vj_in,	//from CDB or regfile
 	input Vk_valid,
 	input [31:0] Vk_in,	
-	input [31:0] Qj_in,
-	input [31:0] Qk_in,
-	output reg Vj,	
-	output reg Vk,
-	output reg Qj	//for Vj_valid control in RS_top 
-	output reg Qk
+	input [3:0] Qj_in,//renamed value for rs1
+	input [3:0] Qk_in,//renamed value for rs2
+	output reg [31:0] Vj,	
+	output reg [31:0] Vk,
+	output reg [3:0] Qj,	//for Vj_valid control in RS_top 
+	output reg [3:0] Qk,
 	output busy
 );
 
-reg Op, Op_next;
-reg Vj_next,Vk_next;
-reg Qj_next,Qk_next;
-reg timer,timer_next;
+reg [2:0] Op, Op_next;
+reg [31:0] Vj_next,Vk_next;
+reg [3:0] Qj_next,Qk_next;
+reg [1:0] timer,timer_next;
 
 //FSM
-reg state ,next_state;
+reg [1:0] state ,next_state;
 localparam IDLE = 0,WAIT = 1,EXE = 2;
 always@(posedge clk)begin
 	if(~rst_n)begin
@@ -48,7 +48,7 @@ always@(*)begin
 		IDLE:	begin                       //instruction issue to reservation station
 					if(sel)begin
 						next_state = WAIT;
-						timer_next = Time;
+						timer_next = 2;
 						Vj_next = Vj_in;
                     	Vk_next = Vk_in;
                     	Qj_next = Qj_in;
@@ -57,7 +57,7 @@ always@(*)begin
 					end else begin
 						next_state = IDLE;
 						timer_next = 0;
-						Vj_next = 0
+						Vj_next = 0;
 	                    Vk_next = 0;
     	                Qj_next = 0;
         	            Qk_next = 0;
@@ -79,19 +79,19 @@ always@(*)begin
 	                    Vk_next = Vk_in;
     	                Qj_next = Qj;
         	            Qk_next = 0;
-					end else if(Qk==0 && Qj!=0 && Vj_valid==1))begin
+					end else if(Qk==0 && Qj!=0 && Vj_valid==1)begin
 						next_state = EXE;
 						Vj_next = Vj_in;
                     	Vk_next = Vk;
                     	Qj_next = 0;
                     	Qk_next = Qk;
-					end else if(Qk!=0 && Qj!=0 && Vj_valid==1 && Vk_valid==1))begin
+					end else if(Qk!=0 && Qj!=0 && Vj_valid==1 && Vk_valid==1)begin
 						next_state = EXE;
 						Vj_next = Vj_in;
                     	Vk_next = Vk_in;
                     	Qj_next = 0;
                     	Qk_next = 0;
-					else begin
+					end else begin
 						next_state = WAIT;
 	                    Vj_next = Vj;
 	                    Vk_next = Vk;
@@ -123,7 +123,7 @@ always@(*)begin
 end
 
 //output logic
-assign busy = (state==WAIT||state==EXE)1:0;
+assign busy = (state==WAIT||state==EXE)?1:0;
 
 
 endmodule

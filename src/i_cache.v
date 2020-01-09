@@ -1,4 +1,4 @@
-module cache #(
+module i_cache #(
   parameter DATA_WIDTH=32,                 //width of data bus
   parameter ADDR_WIDTH=19                  //width of addresses buses
 )(
@@ -14,12 +14,12 @@ module cache #(
     
   always @(posedge clk) begin //WRITE
     if (wea) begin 
-      ram[addra] <= 7;//dina;
+      ram[addra] <= dina;
     end
   end
     
-  always @(posedge clk) begin //READ
-    doutb <= ram[addrb];
+  always @(*) begin //READ
+    doutb = ram[addrb];
   end
     
 endmodule

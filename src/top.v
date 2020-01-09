@@ -2,19 +2,19 @@ module top(
 	input clk,
 	input rst_n,
 	input [31:0]i_instruction,
-	input [5:0] i_addr,
+	input [18:0] i_addr,
 	input i_wea,
 	input start
 );
 
-reg [9:0] pc;//program counter
+reg [18:0] pc;//program counter
 wire [31:0] instruction;
 wire [4:0] rs1,rs2;
 wire [4:0] rd;
 wire [11:0] imm;
-wire [4:0] rs1_data,rs2_data;
+wire [31:0] rs1_data,rs2_data;
 //commit bus
-wire [5:0] commit_idx;
+wire [4:0] commit_idx;
 wire [31:0]commit_data;
 wire commit_wen;
 //common data bus
@@ -25,39 +25,38 @@ wire [31:0] ADD2_result;
 wire  ADD3_valid;
 wire [31:0] ADD3_result;
 wire  MUL1_valid;
-wire [31:0] MUL1_result;
+wire [31:0] MULT1_result;
 wire  MUL2_valid;
-wire [31:0] MUL2_result;
+wire [31:0] MULT2_result;
 wire LS_valid;
 wire [31:0]LS_value;
 wire [2:0]LS_idx;
+
+
 //execution unit inputs
 wire [31:0] ADD1_Vj;
 wire [31:0] ADD1_Vk;
-wire [31:0] ADD1_op;
+wire [2:0] ADD1_op;
 wire [31:0] ADD2_Vj;
 wire [31:0] ADD2_Vk;
-wire [31:0] ADD2_op;
+wire [2:0] ADD2_op;
 wire [31:0] ADD3_Vj;
 wire [31:0] ADD3_Vk;
-wire [31:0] ADD3_op;
+wire [2:0] ADD3_op;
 wire [31:0] MULT1_Vj;
 wire [31:0] MULT1_Vk;
-wire [31:0] MULT1_op;
+wire [2:0] MULT1_op;
 wire [31:0] MULT2_Vj;
 wire [31:0] MULT2_Vk;
-wire [31:0] MULT2_op;
+wire [2:0] MULT2_op;
 
-wire ADD1_busy;
-wire ADD2_busy;
-wire ADD3_busy;
-wire MUL1_busy;
-wire MUL2_busy;
+
 
 //d_cache
 wire [31:0] dina;
-wire [18:0] addra, addrb;
 wire wea; 
+
+wire [18:0] addr_dcache;
 
 //order manager
 wire [2:0] ls_entry;
@@ -72,19 +71,23 @@ wire [3:0] Qj, Qk; //renamed value
 
 
 
-wire [3:0] operation;
+wire [2:0] operation;
 
 //pc
 always@(posedge clk) begin
-	if((struct_haz)||(~start))
-		pc <= pc;
-	else 
-		pc <= pc+4;
+	if(~rst_n)begin
+		pc <= 0;
+	end else begin
+		if((struct_haz)||(~start))
+			pc <= pc;
+		else 
+			pc <= pc+1;    // original: pc = pc+4, 1 because of using word address 
+	end
 end
 
 
 //i-cache
-cache i_cache(
+i_cache i_cache0(
   .dina(i_instruction),       //data to be written
   .addrb(pc),  							 //address for read operation
   .addra(i_addr), 					 //address for write operation
@@ -99,7 +102,7 @@ decoder decoder0(
     .rd(rd),
     .rs1(rs1),
     .rs2(rs2),
-    .imm(imm),
+    .imm(imm)
 );
 //register file
 regfile regfile0(
@@ -122,6 +125,7 @@ regfile regfile0(
 order_manager order_manager(
 	.clk(clk),
 	.rst_n(rst_n),
+	.start(start),
 	.instruction(instruction),
 	.operation(operation),
     //busy info from reservation stations
@@ -151,7 +155,7 @@ order_manager order_manager(
 	.LS_idx(LS_idx),
 	.rs1(rs1),
 	.rs2(rs2),
-	
+	.rd(rd),
 	.Qj(Qj),
 	.Qk(Qk),
     .rs_idx(rs_idx),
@@ -162,10 +166,12 @@ order_manager order_manager(
 //reservation stations
 RS_top RS_top0(
 	.clk(clk),
-	.rst_n(rsn),
+	.rst_n(rst_n),
 	.operation(operation),
-	.rs1_data(rs1_data),//value from register file
-	.rs2_data(rs2_data),
+	.Vj(rs1_data),   //value from register file
+	.Vk(rs2_data),
+	.sel(rs_idx),       //select which reservation station
+	.imm(imm),
 //rename
 	.Qj(Qj),
 	.Qk(Qk),
@@ -183,7 +189,7 @@ RS_top RS_top0(
 	.LS_valid(LS_valid),
 	.LS_value(LS_value),
 	.LS_idx(LS_idx),
-//outputs to EXE
+//outputs to cdb
 	.ADD1_Vj(ADD1_Vj),
 	.ADD1_Vk(ADD1_Vk),
 	.ADD1_Op(ADD1_op),
@@ -201,14 +207,19 @@ RS_top RS_top0(
 	.MULT2_Vk(MULT2_Vk),
 	.MULT2_Op(MULT2_op),
 
-	.LS_addr(addr_dcache)
-	.LS_data(dina)
-	.LS_wen(wea)
-	.ADD1_busy()
-	.ADD2_busy()
-	.ADD3_busy()
-	.MUL1_busy()
-	.MUL2_busy()
+	.LS_addr_rd(addr_dcache),
+	.LS_addr_wr(addr_dcache),
+	.LS_data(dina),
+	.LS_wen(wea),
+	.ADD1_busy(busy_add1),
+    .ADD2_busy(busy_add2),
+    .ADD3_busy(busy_add3),
+    .MUL1_busy(busy_mul1),
+    .MUL2_busy(busy_mul2),
+	.LS_valid_out(LS_valid),
+	.LS_idx_out(LS_idx),
+	.ls_full(ls_full),
+	.ls_entry(ls_entry)
 );
 
 //execution unit
@@ -251,22 +262,22 @@ EXE_mul EXE_MUL1(
 	.clk(clk),
 	.rst_n(rst_n),
 	.start(MUL1_start),
-	.Op(MUL1_op),
-	.a(MUL1_Vj),
-	.b(MUL1_Vk),
+	.Op(MULT1_op),
+	.a(MULT1_Vj),
+	.b(MULT1_Vk),
 	.valid(MUL1_valid),
-	.result(MUL1_result)
+	.result(MULT1_result)
 );
 
 EXE_mul EXE_MUL2(
     .clk(clk),
     .rst_n(rst_n),
     .start(MUL2_start),
-    .Op(MUL2_op),
-    .a(MUL2_Vj),
-    .b(MUL2_Vk),
-    .valid(MUl2_valid),
-    .result(MUL2_result)
+    .Op(MULT2_op),
+    .a(MULT2_Vj),
+    .b(MULT2_Vk),
+    .valid(MULT2_valid),
+    .result(MULT2_result)
 );
 
 

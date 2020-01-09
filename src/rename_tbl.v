@@ -29,7 +29,7 @@ reg [3:0] name [0:31];
 
 
 always@(posedge clk)begin
-	if(rst_n)begin 
+	if(~rst_n)begin 
 		name[0] <= 0;
 		name[1] <= 0;
 		name[2] <= 0;

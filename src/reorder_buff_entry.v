@@ -3,7 +3,7 @@ module reorder_buff_entry#(
 )
 (
 	input clk,
-	input rest_n,
+	input rst_n,
 	input sel,//indicates that this reorder buffer entry has been selected to log the incomming instruction
 	input [31:0] instruction_in,//the incomming instruction
 	input [3:0] from_rs_idx,//this value is assigned by the instruction handler,allocating a reservation station for the incomming instruction
@@ -11,20 +11,20 @@ module reorder_buff_entry#(
 	input [31:0] value,
 	input [2:0] head, // to determine if it your turn to commit 
 	output [4:0] dest,
-	output wen,
-	output busy,
+	output reg wen,
+	output reg busy,
 	output [3:0] waiting_for // for selecting valid signal from common data bus
 );
 
-reg wen,wen_next;
-reg [4:0] dest,dest_next;
+reg wen_next;
+reg [4:0] dest_next;
 reg [3:0] from, from_next;
 reg [31:0] val,val_next;
 reg [31:0] instruction,instruction_next;
-reg busy;
+
 //FSM
 localparam IDLE = 0 , WAIT = 1,COMMIT = 2;
-reg state,next_state;
+reg [1:0] state,next_state;
 
 
 assign waiting_for = from;
@@ -34,13 +34,13 @@ always@(posedge clk)begin
 	if(~rst_n)begin
 		state <= 0;
 		wen <= 0;
-		dest <= 0;
+		from <= 0;//keeps track of which exe unit this instruction is waiting for
 		val <= 0;
 		instruction <= 0;
 	end else begin
 		state <= next_state;
 		wen <= wen_next;
-		dest <= dest_next;
+		from <= from_next;
 		val <= val_next;
 		instruction <= instruction_next;
 	end
@@ -97,6 +97,6 @@ always@(*)begin
 end
 
 
-assign dest = instruction[23:19];
+assign dest = instruction[11:7];
 
 endmodule

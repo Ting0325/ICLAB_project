@@ -38,7 +38,7 @@ module reorder_buff_top(
 	output busy5,
 	output busy6,
 	output busy7,
-	output reg [5:0] commit_idx,   //dest
+	output reg [4:0] commit_idx,   //dest
 	output reg [31:0] commit_data,
 	output reg commit_valid,
 	output reg [3:0] commit_original_name 
@@ -47,12 +47,12 @@ module reorder_buff_top(
 
 //localparam entry_number_0 = 0 , entry_number_1 = 1, entry_number_2 = 2, entry_number_3 = 3;
 
-reg [3:0] waiting_for0, waiting_for1, waiting_for2, waiting_for3, waiting_for4, waiting_for5, waiting_for6, waiting_for7;
+wire [3:0] waiting_for0, waiting_for1, waiting_for2, waiting_for3, waiting_for4, waiting_for5, waiting_for6, waiting_for7;
 reg valid0, valid1,  valid2, valid3, valid4, valid5, valid6, valid7;
 reg [31:0] value0, value1,  value2, value3, value4, value5, value6, value7;
 
 wire sel0,sel1,sel2,sel3,sel4,sel5,sel6,sel7;
-wire [3:0] dest0,dest1,dest2,dest3,dest4,dest5,dest6,dest7;
+wire [4:0] dest0,dest1,dest2,dest3,dest4,dest5,dest6,dest7;
 wire wen0,wen1,wen2,wen3,wen4,wen5,wen6,wen7;
 
 wire [3:0] from0, from1, from2, from3, from4, from5, from6, from7;
@@ -60,14 +60,14 @@ wire [3:0] from0, from1, from2, from3, from4, from5, from6, from7;
  * in-order-commit
  *
  * */
-reg head,head_next;
+reg [2:0] head,head_next;
 localparam HOLD = 0,ADVANCE = 1;
 reg state,next_state;
 always@(posedge clk)begin
 	if(rst_n)begin 
-		head <= 0 ;
+		head <= 1 ;
 	end else begin 
-		head <= head_state;
+		head <= head_next;
 	end
 end
 
@@ -143,14 +143,14 @@ assign sel7 = (index_rb==7)?1:0;
 
 always@(*)begin
 	case(head)
-		0:	  commit_original_name = from0;
-		1:  commit_original_name = from1;
-		2:  commit_original_name = from2;
-		3:  commit_original_name = from3;
-		4:  commit_original_name = from4;
-		5:  commit_original_name = from5;
-		6:  commit_original_name = from6;
-		7:  commit_original_name = from7;
+		0:	commit_original_name = waiting_for0;//from0;
+		1:  commit_original_name = waiting_for1;//from1;
+		2:  commit_original_name = waiting_for2;//from2;
+		3:  commit_original_name = waiting_for3;//from3;
+		4:  commit_original_name = waiting_for4;//from4;
+		5:  commit_original_name = waiting_for5;//from5;
+		6:  commit_original_name = waiting_for6;//from6;
+		7:  commit_original_name = waiting_for7;//from7;
 	endcase 
 end
 
@@ -158,7 +158,7 @@ end
 
 always@(*)begin
 	case(head)
-		0:	  commit_idx = dest0;
+		0:	commit_idx = dest0;
 		1:  commit_idx = dest1;
 		2:  commit_idx = dest2;
 		3:  commit_idx = dest3;
@@ -198,178 +198,202 @@ end
 
 //valid, value control for each reorder buffer entry
 always@(*) begin  
-	if(waiting_for0 == LS_idx)	begin  // waiting for load.store
+	if((waiting_for0 == LS_idx+1)&&LS_valid)	begin  // waiting for load.store LS_idx = 0 ,waiting for = 1
 		valid0 = 1;
 		value0 = LS_value;
 	end else if(waiting_for0==7 && ADD1_valid) begin
 		valid0 = 1;
-		value0 = ADD1_value;
+		value0 = ADD1_result;
 	end else if(waiting_for0==8 && ADD2_valid) begin
 		valid0 = 1;
-		value0 = ADD2_value;
+		value0 = ADD2_result;
 	end else if(waiting_for0==9 && ADD2_valid) begin
-		valid0 = 2;
-		value0 = ADD3_value;
-	end else if(waiting_for0==10 && MUL1_valid) begin
-		valid0 = 2;
-		value0 = MUL1_value;
-	end else if(waiting_for0==11 && MUL2_valid) begin
-		valid0 = 2;
-		value0 = MUL2_value;
-	end 
+		valid0 = 1;
+		value0 = ADD3_result;
+	end else if(waiting_for0==10 && MULT1_valid) begin
+		valid0 = 1;
+		value0 = MULT1_result;
+	end else if(waiting_for0==11 && MULT2_valid) begin
+		valid0 = 1;
+		value0 = MULT2_result;
+	end else begin
+		valid0 = 0;
+		value0 = 0;
+	end
 end
 
 always@(*) begin  
-	if(waiting_for1 == LS_idx)	begin  // waiting for load.store
+	if((waiting_for1 == LS_idx+1)&&LS_valid)	begin  // waiting for load.store
 		valid1 = 1;
 		value1 = LS_value;
 	end else if(waiting_for1==7 && ADD1_valid) begin
 		valid1 = 1;
-		value1 = ADD1_value;
+		value1 = ADD1_result;
 	end else if(waiting_for1==8 && ADD2_valid) begin
 		valid1 = 1;
-		value1 = ADD2_value;
+		value1 = ADD2_result;
 	end else if(waiting_for1==9 && ADD2_valid) begin
-		valid1 = 2;
-		value1 = ADD3_value;
-	end else if(waiting_for1==10 && MUL1_valid) begin
-		valid1 = 2;
-		value1 = MUL1_value;
-	end else if(waiting_for1==11 && MUL2_valid) begin
-		valid1 = 2;
-		value1 = MUL2_value;
-	end 
+		valid1 = 1;
+		value1 = ADD3_result;
+	end else if(waiting_for1==10 && MULT1_valid) begin
+		valid1 = 1;
+		value1 = MULT1_result;
+	end else if(waiting_for1==11 && MULT2_valid) begin
+		valid1 = 1;
+		value1 = MULT2_result;
+	end else begin
+		valid1 = 0;
+		value1 = 0;
+	end
 end
 
 always@(*) begin  
-	if(waiting_for2 == LS_idx)	begin  // waiting for load.store
+	if((waiting_for2 == LS_idx+1)&&LS_valid)	begin  // waiting for load.store
 		valid2 = 1;
 		value2 = LS_value;
 	end else if(waiting_for2==7 && ADD1_valid) begin
 		valid2 = 1;
-		value2 = ADD1_value;
+		value2 = ADD1_result;
 	end else if(waiting_for2==8 && ADD2_valid) begin
 		valid2 = 1;
-		value2 = ADD2_value;
+		value2 = ADD2_result;
 	end else if(waiting_for2==9 && ADD2_valid) begin
 		valid2 = 2;
-		value2 = ADD3_value;
-	end else if(waiting_for2==10 && MUL1_valid) begin
+		value2 = ADD3_result;
+	end else if(waiting_for2==10 && MULT1_valid) begin
 		valid2 = 2;
-		value2 = MUL1_value;
-	end else if(waiting_for2==11 && MUL2_valid) begin
+		value2 = MULT1_result;
+	end else if(waiting_for2==11 && MULT2_valid) begin
 		valid2 = 2;
-		value2 = MUL2_value;
+		value2 = MULT2_result;
+	end else begin
+		valid2 = 0;
+		value2 = 0;
 	end 
 end
 
 always@(*) begin  
-	if(waiting_for3 == LS_idx)	begin  // waiting for load.store
+	if((waiting_for3 == LS_idx+1)&&LS_valid)	begin  // waiting for load.store
 		valid3 = 1;
 		value3 = LS_value;
 	end else if(waiting_for3==7 && ADD1_valid) begin
 		valid3 = 1;
-		value3 = ADD1_value;
+		value3 = ADD1_result;
 	end else if(waiting_for3==8 && ADD2_valid) begin
 		valid3 = 1;
-		value3 = ADD2_value;
+		value3 = ADD2_result;
 	end else if(waiting_for3==9 && ADD2_valid) begin
 		valid3 = 2;
-		value3 = ADD3_value;
-	end else if(waiting_for3==10 && MUL1_valid) begin
+		value3 = ADD3_result;
+	end else if(waiting_for3==10 && MULT1_valid) begin
 		valid3 = 2;
-		value3 = MUL1_value;
-	end else if(waiting_for3==11 && MUL2_valid) begin
+		value3 = MULT1_result;
+	end else if(waiting_for3==11 && MULT2_valid) begin
 		valid3 = 2;
-		value3 = MUL2_value;
+		value3 = MULT2_result;
+	end else begin
+		valid3 = 0;
+		value3 = 0;
 	end 
 end
 
 always@(*) begin  
-	if(waiting_for4 == LS_idx)	begin  // waiting for load.store
+	if((waiting_for4 == LS_idx+1)&&LS_valid)	begin  // waiting for load.store
 		valid4 = 1;
 		value4 = LS_value;
 	end else if(waiting_for4==7 && ADD1_valid) begin
 		valid4 = 1;
-		value4 = ADD1_value;
+		value4 = ADD1_result;
 	end else if(waiting_for4==8 && ADD2_valid) begin
 		valid4 = 1;
-		value4 = ADD2_value;
+		value4 = ADD2_result;
 	end else if(waiting_for4==9 && ADD2_valid) begin
 		valid4 = 2;
-		value4 = ADD3_value;
-	end else if(waiting_for4==10 && MUL1_valid) begin
+		value4 = ADD3_result;
+	end else if(waiting_for4==10 && MULT1_valid) begin
 		valid4 = 2;
-		value4 = MUL1_value;
-	end else if(waiting_for4==11 && MUL2_valid) begin
+		value4 = MULT1_result;
+	end else if(waiting_for4==11 && MULT2_valid) begin
 		valid4 = 2;
-		value4 = MUL2_value;
+		value4 = MULT2_result;
+	end else begin
+		valid4 = 0;
+		value4 = 0;
 	end 
 end
 
 always@(*) begin  
-	if(waiting_for5 == LS_idx)	begin  // waiting for load.store
+	if((waiting_for5 == LS_idx +1)&&LS_valid)	begin  // waiting for load.store
 		valid5 = 1;
 		value5 = LS_value;
 	end else if(waiting_for5==7 && ADD1_valid) begin
 		valid5 = 1;
-		value5 = ADD1_value;
+		value5 = ADD1_result;
 	end else if(waiting_for5==8 && ADD2_valid) begin
 		valid5 = 1;
-		value5 = ADD2_value;
+		value5 = ADD2_result;
 	end else if(waiting_for5==9 && ADD2_valid) begin
 		valid5 = 2;
-		value5 = ADD3_value;
-	end else if(waiting_for5==10 && MUL1_valid) begin
+		value5 = ADD3_result;
+	end else if(waiting_for5==10 && MULT1_valid) begin
 		valid5 = 2;
-		value5 = MUL1_value;
-	end else if(waiting_for5==11 && MUL2_valid) begin
+		value5 = MULT1_result;
+	end else if(waiting_for5==11 && MULT2_valid) begin
 		valid5 = 2;
-		value5 = MUL2_value;
+		value5 = MULT2_result;
+	end else begin
+		valid5 = 0;
+		value5 = 0;
 	end 
 end
 
 always@(*) begin  
-	if(waiting_for6 == LS_idx)	begin  // waiting for load.store
+	if((waiting_for6 == LS_idx+1)&&LS_valid)	begin  // waiting for load.store
 		valid6 = 1;
 		value6 = LS_value;
 	end else if(waiting_for6==7 && ADD1_valid) begin
 		valid6 = 1;
-		value6 = ADD1_value;
+		value6 = ADD1_result;
 	end else if(waiting_for6==8 && ADD2_valid) begin
 		valid6 = 1;
-		value6 = ADD2_value;
+		value6 = ADD2_result;
 	end else if(waiting_for6==9 && ADD2_valid) begin
 		valid6 = 2;
-		value6 = ADD3_value;
-	end else if(waiting_for6==10 && MUL1_valid) begin
+		value6 = ADD3_result;
+	end else if(waiting_for6==10 && MULT1_valid) begin
 		valid6 = 2;
-		value6 = MUL1_value;
-	end else if(waiting_for6==11 && MUL2_valid) begin
+		value6 = MULT1_result;
+	end else if(waiting_for6==11 && MULT2_valid) begin
 		valid6 = 2;
-		value6 = MUL2_value;
+		value6 = MULT2_result;
+	end else begin
+		valid6 = 0;
+		value6 = 0;
 	end 
 end
 
 always@(*) begin  
-	if(waiting_for7 == LS_idx)	begin  // waiting for load.store
+	if((waiting_for7 == LS_idx+1)&&LS_valid)	begin  // waiting for load.store
 		valid7 = 1;
 		value7 = LS_value;
 	end else if(waiting_for7==7 && ADD1_valid) begin
 		valid7 = 1;
-		value7 = ADD1_value;
+		value7 = ADD1_result;
 	end else if(waiting_for7==8 && ADD2_valid) begin
 		valid7 = 1;
-		value7 = ADD2_value;
+		value7 = ADD2_result;
 	end else if(waiting_for7==9 && ADD2_valid) begin
 		valid7 = 2;
-		value7 = ADD3_value;
-	end else if(waiting_for7==10 && MUL1_valid) begin
+		value7 = ADD3_result;
+	end else if(waiting_for7==10 && MULT1_valid) begin
 		valid7 = 2;
-		value7 = MUL1_value;
-	end else if(waiting_for7==11 && MUL2_valid) begin
+		value7 = MULT1_result;
+	end else if(waiting_for7==11 && MULT2_valid) begin
 		valid7 = 2;
-		value7 = MUL2_value;
+		value7 = MULT2_result;
+	end else begin
+		valid7 = 0;
+		value7 = 0;
 	end 
 end
 
@@ -378,9 +402,10 @@ end
 
 
 //reorder buffer entries
-reorder_buff_entry rb0#(
+reorder_buff_entry #(
 	.entry_number(0)
 )
+rb0
 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -392,13 +417,14 @@ reorder_buff_entry rb0#(
 	.head(head),
 	.dest(dest0),   //output for renaming table
 	.wen(wen0),
-	.busy(busy0)
+	.busy(busy0),
 	.waiting_for(waiting_for0)
 );
 
-reorder_buff_entry rb1#(
+reorder_buff_entry #(
 	.entry_number(1)
 )
+rb1
 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -410,13 +436,14 @@ reorder_buff_entry rb1#(
 	.head(head),
 	.dest(dest1),   
 	.wen(wen1),
-	.busy(busy1)
+	.busy(busy1),
 	.waiting_for(waiting_for1)
 );
 
-reorder_buff_entry rb2#(
+reorder_buff_entry #(
 	.entry_number(2)
 )
+rb2
 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -428,13 +455,14 @@ reorder_buff_entry rb2#(
 	.head(head),
 	.dest(dest2),   
 	.wen(wen2),
-	.busy(busy2)
+	.busy(busy2),
 	.waiting_for(waiting_for2)
 );
 
-reorder_buff_entry rb3#(
+reorder_buff_entry #(
 	.entry_number(3)
 )
+rb3
 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -446,13 +474,14 @@ reorder_buff_entry rb3#(
 	.head(head),
 	.dest(dest3),   
 	.wen(wen3),
-	.busy(busy3)
+	.busy(busy3),
 	.waiting_for(waiting_for3)
 );
 
-reorder_buff_entry rb4#(
+reorder_buff_entry #(
 	.entry_number(4)
 )
+rb4
 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -464,13 +493,14 @@ reorder_buff_entry rb4#(
 	.head(head),
 	.dest(dest4),   
 	.wen(wen4),
-	.busy(busy4)
+	.busy(busy4),
 	.waiting_for(waiting_for4)
 );
 
-reorder_buff_entry rb5#(
+reorder_buff_entry #(
 	.entry_number(5)
 )
+rb5
 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -482,13 +512,14 @@ reorder_buff_entry rb5#(
 	.head(head),
 	.dest(dest5),   
 	.wen(wen5),
-	.busy(busy5)
+	.busy(busy5),
 	.waiting_for(waiting_for5)
 );
 
-reorder_buff_entry rb6#(
+reorder_buff_entry #(
    .entry_number(6)
 )
+rb6
 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -500,13 +531,14 @@ reorder_buff_entry rb6#(
 	.head(head),
 	.dest(dest6),   
 	.wen(wen6),
-	.busy(busy6)
+	.busy(busy6),
 	.waiting_for(waiting_for6)
 );
 
-reorder_buff_entry rb7#(
+reorder_buff_entry #(
    .entry_number(7)
 )
+rb7
 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -518,7 +550,7 @@ reorder_buff_entry rb7#(
 	.head(head),
 	.dest(dest7),   
 	.wen(wen7),
-	.busy(busy7)
+	.busy(busy7),
 	.waiting_for(waiting_for7)
 );
 

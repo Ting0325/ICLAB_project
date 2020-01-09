@@ -13,11 +13,15 @@
 module RS_top(
 	input clk,
 	input rst_n,
-	input operation,
-	input [4:0] rs1_data, //value from register file
-	input [4:0] rs2_data,
+	input [2:0] operation,
+	input [31:0] Vj,    //value from register file (rs1_data)
+	input [31:0] Vk,
 
-	input [4:0] Qj, Qk;
+	input [3:0] sel,//rs_idx
+	input [11:0] imm,
+
+	input [3:0] Qj,
+	input [3:0] Qk,
 
 //common data bus
 	input ADD1_valid,
@@ -34,86 +38,54 @@ module RS_top(
 	input [31:0] LS_value,
 	input [2:0] LS_idx,
 
-	output [31:0]ADD1_Vj,
-	output [31:0]ADD1_Vk,
-	output [3:0] ADD1_Op,
-	output [31:0]ADD2_Vj,
-	output [31:0]ADD2_Vk,
-	output [3:0] ADD2_Op,
-	output [31:0]ADD3_Vj,
-	output [31:0]ADD3_Vk,
-	output [3:0] ADD3_Op,
+	output  [31:0]ADD1_Vj,
+	output  [31:0]ADD1_Vk,
+	output  [2:0] ADD1_Op,
+	output  [31:0]ADD2_Vj,
+	output  [31:0]ADD2_Vk,
+	output  [2:0] ADD2_Op,
+	output  [31:0]ADD3_Vj,
+	output  [31:0]ADD3_Vk,
+	output  [2:0] ADD3_Op,
 
-	output [31:0]MULT1_Vj,
-	output [31:0]MULT1_Vk,
-	output [3:0] MULT1_Op,
-	output [31:0]MULT2_Vj,
-	output [31:0]MULT2_Vk,
-	output [3:0] MULT2_Op,
+	output  [31:0]MULT1_Vj,
+	output  [31:0]MULT1_Vk,
+	output  [2:0] MULT1_Op,
+	output  [31:0]MULT2_Vj,
+	output  [31:0]MULT2_Vk,
+	output  [2:0] MULT2_Op,
 	
-	output LS_addr_rd,
-	output LS_addr_wr,
-	output LS_data,
+	output [18:0] LS_addr_rd, //read address to dcache
+	output [18:0] LS_addr_wr, //write address to dcache
+	output [31:0] LS_data,
 	output LS_wen,
 	//busy information from each reservation station
-	output ADD1_busy,
+	output  ADD1_busy,
 	//TO-DO:busy information from each reservation station
-    output ADD2_busy,
-    output ADD3_busy,
-    output MUL1_busy,
-    output MUL2_busy,
-	output reg LS_valid_out,
-	output reg [2:0] LS_idx_out;
+    output  ADD2_busy,
+    output  ADD3_busy,
+    output  MUL1_busy,
+    output  MUL2_busy,
+	output  reg LS_valid_out,//for common data bus
+	output  reg [2:0] LS_idx_out,//for common data bus
+	//
+	output ls_full,
+	output [2:0] ls_entry
 );
 
 localparam TIME_add = 2, TIME_mul = 10, TIME_div = 40;
 
-reg ADD1_busy;
-reg ADD1_Op;
-reg [31:0] ADD1_Vj;
-reg [31:0] ADD1_Vk;
-reg [31:0] ADD1_Qj;
-reg [31:0] ADD1_Qk;
+reg [18:0] LOAD1_addr;
+reg [18:0]LOAD2_addr;
+reg [18:0]LOAD3_addr;
 
+reg [18:0] STORE1_addr;
+reg [3:0] STORE1_Qi;
+reg [18:0] STORE2_addr;
+reg [3:0] STORE2_Qi;
+reg [18:0] STORE3_addr;
+reg [3:0] STORE3_Qi;
 
-reg ADD2_busy;
-reg ADD2_Op;
-reg [31:0] ADD2_Vj;
-reg [31:0] ADD2_Vk;
-reg [31:0] ADD2_Qj;
-reg [31:0] ADD2_Qk;
-
-reg ADD3_busy;
-reg ADD3_Op;
-reg [31:0] ADD3_Vj;
-reg [31:0] ADD3_Vk;
-reg [31:0] ADD3_Qj;
-reg [31:0] ADD3_Qk;
-
-reg MUL1_busy;
-reg MUL1_Op;
-reg [31:0] MULT1_Vj;
-reg [31:0] MULT1_Vk;
-reg [31:0] MULT1_Qj;
-reg [31:0] MULT1_Qk;
-
-reg MUL2_busy;
-reg MUL2_Op;
-reg [31:0] MULT2_Vj;
-reg [31:0] MULT2_Vk;
-reg [31:0] MULT2_Qj;
-reg [31:0] MULT2_Qk;
-
-reg LOAD1_addr;
-reg LOAD2_addr;
-reg LOAD3_addr;
-
-reg STORE1_addr;
-reg STORE1_Qi;
-reg STORE2_addr;
-reg STORE2_Qi;
-reg STORE3_addr;
-reg STORE3_Qi;
 
 wire sel_load_store, sel_add1, sel_add2, sel_add3, sel_mul1, sel_mul2;
 wire LS_valid_0, LS_valid_1, LS_valid_2, LS_valid_3, LS_valid_4, LS_valid_5;
@@ -151,7 +123,7 @@ always@(*)begin
 	end else if(~sel_add1 && Qj_add1==7 && ADD1_valid)begin//Qj==7
 	Vj_add1 = ADD1_result;
 	Vj_valid_add1 = 1;
-	end end else if(~sel_add1 && Qj_add1==8 && ADD2_valid)begin//Qj==8
+	end else if(~sel_add1 && Qj_add1==8 && ADD2_valid)begin//Qj==8
 	Vj_add1 = ADD2_result;
 	Vj_valid_add1 = 1;
 	end else if(~sel_add1 && Qj_add1==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
@@ -163,7 +135,7 @@ always@(*)begin
   	end else if(~sel_add1 && Qj_add1==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
 	Vj_add1 = MULT2_result;
 	Vj_valid_add1 = 1;
-	else begin
+	end else begin
 	Vj_add1 = 0;
 	Vj_valid_add1 = 0;
 	end
@@ -187,7 +159,7 @@ always@(*)begin
 	end else if(~sel_add2 && Qj_add2==7 && ADD1_valid)begin//Qj==7
 	Vj_add2 = ADD1_result;
 	Vj_valid_add2 = 1;
-	end end else if(~sel_add2 && Qj_add2==8 && ADD2_valid)begin//Qj==8
+	end else if(~sel_add2 && Qj_add2==8 && ADD2_valid)begin//Qj==8
 	Vj_add2 = ADD2_result;
 	Vj_valid_add2 = 1;
 	end else if(~sel_add2 && Qj_add2==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
@@ -199,7 +171,7 @@ always@(*)begin
   	end else if(~sel_add2 && Qj_add2==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
 	Vj_add2 = MULT2_result;
 	Vj_valid_add2 = 1;
-	else begin
+	end else begin
 	Vj_add2 = 0;
 	Vj_valid_add2 = 0;
 	end
@@ -221,7 +193,7 @@ always@(*)begin
 	end else if(~sel_add3 && Qj_add3==7 && ADD1_valid)begin//Qj==7
 	Vj_add3 = ADD1_result;
 	Vj_valid_add3 = 1;
-	end end else if(~sel_add3 && Qj_add3==8 && ADD2_valid)begin//Qj==8
+	end else if(~sel_add3 && Qj_add3==8 && ADD2_valid)begin//Qj==8
 	Vj_add3 = ADD2_result;
 	Vj_valid_add3 = 1;
 	end else if(~sel_add3 && Qj_add3==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
@@ -233,7 +205,7 @@ always@(*)begin
   	end else if(~sel_add3 && Qj_add3==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
 	Vj_add3 = MULT2_result;
 	Vj_valid_add3 = 1;
-	else begin
+	end else begin
 	Vj_add3 = 0;
 	Vj_valid_add3 = 0;
 	end
@@ -255,7 +227,7 @@ always@(*)begin
 	end else if(~sel_mul1 && Qj_mul1==7 && ADD1_valid)begin//Qj==7
 	Vj_mul1 = ADD1_result;
 	Vj_valid_mul1 = 1;
-	end end else if(~sel_mul1 && Qj_mul1==8 && ADD2_valid)begin//Qj==8
+	end else if(~sel_mul1 && Qj_mul1==8 && ADD2_valid)begin//Qj==8
 	Vj_mul1 = ADD2_result;
 	Vj_valid_mul1 = 1;
 	end else if(~sel_mul1 && Qj_mul1==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
@@ -267,7 +239,7 @@ always@(*)begin
   	end else if(~sel_mul1 && Qj_mul1==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
 	Vj_mul1 = MULT2_result;
 	Vj_valid_mul1 = 1;
-	else begin
+	end else begin
 	Vj_mul1 = 0;
 	Vj_valid_mul1 = 0;
 	end
@@ -289,7 +261,7 @@ always@(*)begin
 	end else if(~sel_mul2 && Qj_mul2==7 && ADD1_valid)begin//Qj==7
 	Vj_mul2 = ADD1_result;
 	Vj_valid_mul2 = 1;
-	end end else if(~sel_mul2 && Qj_mul2==8 && ADD2_valid)begin//Qj==8
+	end else if(~sel_mul2 && Qj_mul2==8 && ADD2_valid)begin//Qj==8
 	Vj_mul2 = ADD2_result;
 	Vj_valid_mul2 = 1;
 	end else if(~sel_mul2 && Qj_mul2==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
@@ -301,7 +273,7 @@ always@(*)begin
   	end else if(~sel_mul2 && Qj_mul2==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
 	Vj_mul2 = MULT2_result;
 	Vj_valid_mul2 = 1;
-	else begin
+	end else begin
 	Vj_mul2 = 0;
 	Vj_valid_mul2 = 0;
 	end
@@ -322,7 +294,7 @@ always@(*)begin
 	end else if(~sel_add1 && Qk_add1==7 && ADD1_valid)begin//Qk==7
 	Vk_add1 = ADD1_result;
 	Vk_valid_add1 = 1;
-	end end else if(~sel_add1 && Qk_add1==8 && ADD2_valid)begin//Qk==8
+	end else if(~sel_add1 && Qk_add1==8 && ADD2_valid)begin//Qk==8
 	Vk_add1 = ADD2_result;
 	Vk_valid_add1 = 1;
 	end else if(~sel_add1 && Qk_add1==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
@@ -334,7 +306,7 @@ always@(*)begin
   	end else if(~sel_add1 && Qk_add1==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
 	Vk_add1 = MULT2_result;
 	Vk_valid_add1 = 1;
-	else begin
+	end else begin
 	Vk_add1 = 0;
 	Vk_valid_add1 = 0;
 	end
@@ -358,7 +330,7 @@ always@(*)begin
 	end else if(~sel_add2 && Qk_add2==7 && ADD1_valid)begin//Qk==7
 	Vk_add2 = ADD1_result;
 	Vk_valid_add2 = 1;
-	end end else if(~sel_add2 && Qk_add2==8 && ADD2_valid)begin//Qk==8
+	end else if(~sel_add2 && Qk_add2==8 && ADD2_valid)begin//Qk==8
 	Vk_add2 = ADD2_result;
 	Vk_valid_add2 = 1;
 	end else if(~sel_add2 && Qk_add2==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
@@ -370,7 +342,7 @@ always@(*)begin
   	end else if(~sel_add2 && Qk_add2==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
 	Vk_add2 = MULT2_result;
 	Vk_valid_add2 = 1;
-	else begin
+	end else begin
 	Vk_add2 = 0;
 	Vk_valid_add2 = 0;
 	end
@@ -392,7 +364,7 @@ always@(*)begin
 	end else if(~sel_add3 && Qk_add3==7 && ADD1_valid)begin//Qk==7
 	Vk_add3 = ADD1_result;
 	Vk_valid_add3 = 1;
-	end end else if(~sel_add3 && Qk_add3==8 && ADD2_valid)begin//Qk==8
+	end else if(~sel_add3 && Qk_add3==8 && ADD2_valid)begin//Qk==8
 	Vk_add3 = ADD2_result;
 	Vk_valid_add3 = 1;
 	end else if(~sel_add3 && Qk_add3==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
@@ -404,7 +376,7 @@ always@(*)begin
   	end else if(~sel_add3 && Qk_add3==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
 	Vk_add3 = MULT2_result;
 	Vk_valid_add3 = 1;
-	else begin
+	end else begin
 	Vk_add3 = 0;
 	Vk_valid_add3 = 0;
 	end
@@ -426,7 +398,7 @@ always@(*)begin
 	end else if(~sel_mul1 && Qk_mul1==7 && ADD1_valid)begin//Qk==7
 	Vk_mul1 = ADD1_result;
 	Vk_valid_mul1 = 1;
-	end end else if(~sel_mul1 && Qk_mul1==8 && ADD2_valid)begin//Qk==8
+	end else if(~sel_mul1 && Qk_mul1==8 && ADD2_valid)begin//Qk==8
 	Vk_mul1 = ADD2_result;
 	Vk_valid_mul1 = 1;
 	end else if(~sel_mul1 && Qk_mul1==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
@@ -438,7 +410,7 @@ always@(*)begin
   	end else if(~sel_mul1 && Qk_mul1==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
 	Vk_mul1 = MULT2_result;
 	Vk_valid_mul1 = 1;
-	else begin
+	end else begin
 	Vk_mul1 = 0;
 	Vk_valid_mul1 = 0;
 	end
@@ -460,7 +432,7 @@ always@(*)begin
 	end else if(~sel_mul2 && Qk_mul2==7 && ADD1_valid)begin//Qk==7
 	Vk_mul2 = ADD1_result;
 	Vk_valid_mul2 = 1;
-	end end else if(~sel_mul2 && Qk_mul2==8 && ADD2_valid)begin//Qk==8
+	end else if(~sel_mul2 && Qk_mul2==8 && ADD2_valid)begin//Qk==8
 	Vk_mul2 = ADD2_result;
 	Vk_valid_mul2 = 1;
 	end else if(~sel_mul2 && Qk_mul2==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
@@ -472,20 +444,22 @@ always@(*)begin
   	end else if(~sel_mul2 && Qk_mul2==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
 	Vk_mul2 = MULT2_result;
 	Vk_valid_mul2 = 1;
-	else begin
+	end else begin
 	Vk_mul2 = 0;
 	Vk_valid_mul2 = 0;
 	end
 end
 
 always@(*) begin
-	case({valid_out0,valid_out1,valid_out2,valid_out3,valid_out4,valid_out5})
-		6'b100000: begin LS_idx_out = 0; LS_valid_out = valid_out0; end
-		6'b010000: begin LS_idx_out = 1; LS_valid_out = valid_out1; end
-		6'b001000: begin LS_idx_out = 2; LS_valid_out = valid_out2; end
-		6'b000100: begin LS_idx_out = 3; LS_valid_out = valid_out3; end
-		6'b000010: begin LS_idx_out = 4; LS_valid_out = valid_out4; end
-		6'b000001: begin LS_idx_out = 5; LS_valid_out = valid_out5; end
+	case({LS_valid_0,LS_valid_1,LS_valid_2,LS_valid_3,LS_valid_4,LS_valid_5})
+		6'b100000: begin LS_idx_out = 0; LS_valid_out = LS_valid_0; end
+		6'b010000: begin LS_idx_out = 1; LS_valid_out = LS_valid_1; end
+		6'b001000: begin LS_idx_out = 2; LS_valid_out = LS_valid_2; end
+		6'b000100: begin LS_idx_out = 3; LS_valid_out = LS_valid_3; end
+		6'b000010: begin LS_idx_out = 4; LS_valid_out = LS_valid_4; end
+		6'b000001: begin LS_idx_out = 5; LS_valid_out = LS_valid_5; end
+		default:	begin LS_idx_out = 0; LS_valid_out = 0; end
+	endcase
 end
 
 
@@ -508,11 +482,11 @@ LS_buff LS_buff(
 	.clk(clk),
 	.rst_n(rst_n),
 	.sel(sel_load_store),
-	.Op(Op),
-	.offset(offset),
-	.rs(rs),
-	.Vi_in(Vi_in),
-	.Qi_in(Qi_in),
+	.Op_in(operation),
+	.offset(imm),
+	.rs(Vj),//is the value from the register that contains the address (i.e rs1 ) value is from Vj
+	.Vi_in(Vk),//is the value from the register that contains the data to be stored (i.e rs2 ) value is from Vk
+	.Qi_in(Qk),//the renamed value for rs2
 	.rd_addr(LS_addr_rd),
 	.wr_addr(LS_addr_wr),
 	.data_out(LS_data),
@@ -522,7 +496,9 @@ LS_buff LS_buff(
 	.valid_out2(LS_valid_2),
 	.valid_out3(LS_valid_3),
 	.valid_out4(LS_valid_4),
-	.valid_out5(LS_valid_5)
+	.valid_out5(LS_valid_5),
+	.ls_full(ls_full),
+	.ls_entry(ls_entry)
 );
 
 
