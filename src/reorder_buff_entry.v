@@ -13,13 +13,15 @@ module reorder_buff_entry#(
 	output [4:0] dest,
 	output wen,
 	output reg busy,
-	output [3:0] waiting_for // for selecting valid signal from common data bus
+	output [3:0] waiting_for, // for selecting valid signal from common data bus
+	//
+	output reg [31:0] val //the val field
 );
 
 //reg wen_next;
 reg [4:0] dest_next;
 reg [3:0] from, from_next;
-reg [31:0] val,val_next;
+reg [31:0] val_next;
 reg [31:0] instruction,instruction_next;
 
 //FSM

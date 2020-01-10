@@ -80,6 +80,18 @@ always@(posedge clk)begin
 		addr[3] <= 0;
 		addr[4] <= 0;
 		addr[5] <= 0;
+		Qi[0] <= 0;
+		Qi[1] <= 0;
+		Qi[2] <= 0;
+		Qi[3] <= 0;
+		Qi[4] <= 0;
+		Qi[5] <= 0;
+		Vi[0] <= 0;
+		Vi[1] <= 0;
+		Vi[2] <= 0;
+		Vi[3] <= 0;
+		Vi[4] <= 0;
+		Vi[5] <= 0;
 	end else begin 
 		state <= next_state;
 		head <= head_next;
@@ -101,6 +113,18 @@ always@(posedge clk)begin
 		addr[3] <=addr_next[3];
 		addr[4] <=addr_next[4];
 		addr[5] <=addr_next[5];
+		Qi[0] <= Qi_next[0];
+		Qi[1] <= Qi_next[1];
+		Qi[2] <= Qi_next[2];
+		Qi[3] <= Qi_next[3];
+		Qi[4] <= Qi_next[4];
+		Qi[5] <= Qi_next[5];
+		Vi[0] <= Vi_next[0];
+		Vi[1] <= Vi_next[1];
+		Vi[2] <= Vi_next[2];
+		Vi[3] <= Vi_next[3];
+		Vi[4] <= Vi_next[4];
+		Vi[5] <= Vi_next[5];
 	end
 end
 

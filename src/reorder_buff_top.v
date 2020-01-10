@@ -56,6 +56,10 @@ wire [4:0] dest0,dest1,dest2,dest3,dest4,dest5,dest6,dest7;
 wire wen0,wen1,wen2,wen3,wen4,wen5,wen6,wen7;
 
 wire [3:0] from0, from1, from2, from3, from4, from5, from6, from7;
+
+//
+wire [31:0] val_buff0,val_buff1,val_buff2,val_buff3,val_buff4,val_buff5,val_buff6,val_buff7;
+
 /* use a head vale to indicate which entry to commit:
  * in-order-commit
  *
@@ -169,29 +173,32 @@ always@(*)begin
 	endcase 
 end
 
+
+//in this version the action commit can be done as soon as possible(i.e if the head is waiting for the valid data on CDB)
+//but if the value has to be buffered in the buffer and commmited later,the commit value will come from the corresponding head entry
 always@(*)begin
     case(head)
-        0:  commit_data = value0;
-        1:  commit_data = value1;
-        2:  commit_data = value2;
-        3:  commit_data = value3;
-        4:  commit_data = value4;
-        5:  commit_data = value5;
-        6:  commit_data = value6;
-        7:  commit_data = value7;
+        0:  commit_data = (~valid0&&wen0)?val_buff0:value0;//value0;
+        1:  commit_data =(~valid1&&wen1)?val_buff1:value1;//value1;
+        2:  commit_data = (~valid2&&wen2)?val_buff2:value2;//value2;
+        3:  commit_data = (~valid3&&wen3)?val_buff3:value3;//value3;
+        4:  commit_data = (~valid4&&wen4)?val_buff4:value4;//value4;
+        5:  commit_data = (~valid5&&wen5)?val_buff5:value5;//value5;
+        6:  commit_data = (~valid6&&wen6)?val_buff6:value6;//value6;
+        7:  commit_data = (~valid7&&wen7)?val_buff7:value7;//value7;
     endcase
 end
 
 always@(*)begin
     case(head)
-        0:  commit_valid = valid0;
-        1:  commit_valid = valid1;
-        2:  commit_valid = valid2;
-        3:  commit_valid = valid3;
-        4:  commit_valid = valid4;
-        5:  commit_valid = valid5;
-        6:  commit_valid = valid6;
-        7:  commit_valid = valid7;
+        0:  commit_valid = valid0 || wen0;
+        1:  commit_valid = valid1 || wen1;
+        2:  commit_valid = valid2 || wen2;
+        3:  commit_valid = valid3 || wen3;
+        4:  commit_valid = valid4 || wen4;
+        5:  commit_valid = valid5 || wen5;
+        6:  commit_valid = valid6 || wen6;
+        7:  commit_valid = valid7 || wen7;
     endcase
 end
 
@@ -258,13 +265,13 @@ always@(*) begin
 		valid2 = 1;
 		value2 = ADD2_result;
 	end else if(waiting_for2==9 && ADD2_valid) begin
-		valid2 = 2;
+		valid2 = 1;
 		value2 = ADD3_result;
 	end else if(waiting_for2==10 && MULT1_valid) begin
-		valid2 = 2;
+		valid2 = 1;
 		value2 = MULT1_result;
 	end else if(waiting_for2==11 && MULT2_valid) begin
-		valid2 = 2;
+		valid2 = 1;
 		value2 = MULT2_result;
 	end else begin
 		valid2 = 0;
@@ -283,13 +290,13 @@ always@(*) begin
 		valid3 = 1;
 		value3 = ADD2_result;
 	end else if(waiting_for3==9 && ADD2_valid) begin
-		valid3 = 2;
+		valid3 = 1;
 		value3 = ADD3_result;
 	end else if(waiting_for3==10 && MULT1_valid) begin
-		valid3 = 2;
+		valid3 = 1;
 		value3 = MULT1_result;
 	end else if(waiting_for3==11 && MULT2_valid) begin
-		valid3 = 2;
+		valid3 = 1;
 		value3 = MULT2_result;
 	end else begin
 		valid3 = 0;
@@ -308,13 +315,13 @@ always@(*) begin
 		valid4 = 1;
 		value4 = ADD2_result;
 	end else if(waiting_for4==9 && ADD2_valid) begin
-		valid4 = 2;
+		valid4 = 1;
 		value4 = ADD3_result;
 	end else if(waiting_for4==10 && MULT1_valid) begin
-		valid4 = 2;
+		valid4 = 1;
 		value4 = MULT1_result;
 	end else if(waiting_for4==11 && MULT2_valid) begin
-		valid4 = 2;
+		valid4 = 1;
 		value4 = MULT2_result;
 	end else begin
 		valid4 = 0;
@@ -333,13 +340,13 @@ always@(*) begin
 		valid5 = 1;
 		value5 = ADD2_result;
 	end else if(waiting_for5==9 && ADD2_valid) begin
-		valid5 = 2;
+		valid5 = 1;
 		value5 = ADD3_result;
 	end else if(waiting_for5==10 && MULT1_valid) begin
-		valid5 = 2;
+		valid5 = 1;
 		value5 = MULT1_result;
 	end else if(waiting_for5==11 && MULT2_valid) begin
-		valid5 = 2;
+		valid5 = 1;
 		value5 = MULT2_result;
 	end else begin
 		valid5 = 0;
@@ -358,13 +365,13 @@ always@(*) begin
 		valid6 = 1;
 		value6 = ADD2_result;
 	end else if(waiting_for6==9 && ADD2_valid) begin
-		valid6 = 2;
+		valid6 = 1;
 		value6 = ADD3_result;
 	end else if(waiting_for6==10 && MULT1_valid) begin
-		valid6 = 2;
+		valid6 = 1;
 		value6 = MULT1_result;
 	end else if(waiting_for6==11 && MULT2_valid) begin
-		valid6 = 2;
+		valid6 = 1;
 		value6 = MULT2_result;
 	end else begin
 		valid6 = 0;
@@ -383,13 +390,13 @@ always@(*) begin
 		valid7 = 1;
 		value7 = ADD2_result;
 	end else if(waiting_for7==9 && ADD2_valid) begin
-		valid7 = 2;
+		valid7 = 1;
 		value7 = ADD3_result;
 	end else if(waiting_for7==10 && MULT1_valid) begin
-		valid7 = 2;
+		valid7 = 1;
 		value7 = MULT1_result;
 	end else if(waiting_for7==11 && MULT2_valid) begin
-		valid7 = 2;
+		valid7 = 1;
 		value7 = MULT2_result;
 	end else begin
 		valid7 = 0;
@@ -418,7 +425,8 @@ rb0
 	.dest(dest0),   //output for renaming table
 	.wen(wen0),
 	.busy(busy0),
-	.waiting_for(waiting_for0)
+	.waiting_for(waiting_for0),
+	.val(val_buff0)
 );
 
 reorder_buff_entry #(
@@ -437,7 +445,8 @@ rb1
 	.dest(dest1),   
 	.wen(wen1),
 	.busy(busy1),
-	.waiting_for(waiting_for1)
+	.waiting_for(waiting_for1),
+	.val(val_buff1)
 );
 
 reorder_buff_entry #(
@@ -456,7 +465,8 @@ rb2
 	.dest(dest2),   
 	.wen(wen2),
 	.busy(busy2),
-	.waiting_for(waiting_for2)
+	.waiting_for(waiting_for2),
+	.val(val_buff2)
 );
 
 reorder_buff_entry #(
@@ -475,7 +485,8 @@ rb3
 	.dest(dest3),   
 	.wen(wen3),
 	.busy(busy3),
-	.waiting_for(waiting_for3)
+	.waiting_for(waiting_for3),
+	.val(val_buff3)
 );
 
 reorder_buff_entry #(
@@ -494,7 +505,8 @@ rb4
 	.dest(dest4),   
 	.wen(wen4),
 	.busy(busy4),
-	.waiting_for(waiting_for4)
+	.waiting_for(waiting_for4),
+	.val(val_buff4)
 );
 
 reorder_buff_entry #(
@@ -513,7 +525,8 @@ rb5
 	.dest(dest5),   
 	.wen(wen5),
 	.busy(busy5),
-	.waiting_for(waiting_for5)
+	.waiting_for(waiting_for5),
+	.val(val_buff5)
 );
 
 reorder_buff_entry #(
@@ -532,7 +545,8 @@ rb6
 	.dest(dest6),   
 	.wen(wen6),
 	.busy(busy6),
-	.waiting_for(waiting_for6)
+	.waiting_for(waiting_for6),
+	.val(val_buff6)
 );
 
 reorder_buff_entry #(
@@ -551,7 +565,8 @@ rb7
 	.dest(dest7),   
 	.wen(wen7),
 	.busy(busy7),
-	.waiting_for(waiting_for7)
+	.waiting_for(waiting_for7),
+	.val(val_buff7)
 );
 
 endmodule

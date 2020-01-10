@@ -270,7 +270,7 @@ EXE_mul EXE_MUL1(
 	.Op(MULT1_op),
 	.a(MULT1_Vj),
 	.b(MULT1_Vk),
-	.valid(MUL1_valid),
+	.valid(MULT1_valid),
 	.result(MULT1_result)
 );
 
