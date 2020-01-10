@@ -64,7 +64,7 @@ reg [2:0] head,head_next;
 localparam HOLD = 0,ADVANCE = 1;
 reg state,next_state;
 always@(posedge clk)begin
-	if(rst_n)begin 
+	if(~rst_n)begin 
 		head <= 1 ;
 	end else begin 
 		head <= head_next;
@@ -81,45 +81,45 @@ always@(*)begin
 			end
         1:  begin
                 if(wen1)
-                    head_next = head;
-                else
                     head_next = head + 1;
+                else
+                    head_next = head;
             end
         2:  begin
                 if(wen2)
-                    head_next = head;
+                    head_next = head+ 1;
                 else
-                    head_next = head + 1;
+                    head_next = head ;
             end
         3:  begin
                 if(wen3)
-                    head_next = head;
+                    head_next = head+ 1;
                 else
-                    head_next = head + 1;
+                    head_next = head ;
             end
 		4:  begin
                 if(wen4)
-                    head_next = head;
+                    head_next = head+ 1;
                 else
-                    head_next = head + 1;
+                    head_next = head ;
             end
 		5:  begin
                 if(wen5)
-                    head_next = head;
+                    head_next = head+ 1;
                 else
-                    head_next = head + 1;
+                    head_next = head ;
             end
 		6:  begin
                 if(wen6)
-                    head_next = head;
-                else
                     head_next = head + 1;
+                else
+                    head_next = head ;
             end
 		7:  begin
                 if(wen7)
-                    head_next = head;
-                else
                     head_next = 0;
+                else
+                    head_next = head;
             end
 
 	endcase

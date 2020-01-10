@@ -14,8 +14,8 @@ module RS_top(
 	input clk,
 	input rst_n,
 	input [2:0] operation,
-	input [31:0] Vj,    //value from register file (rs1_data)
-	input [31:0] Vk,
+	input [31:0] Vj,    
+	input [31:0] Vk,	//value from register file (rs1_data)
 
 	input [3:0] sel,//rs_idx
 	input [11:0] imm,
@@ -41,19 +41,24 @@ module RS_top(
 	output  [31:0]ADD1_Vj,
 	output  [31:0]ADD1_Vk,
 	output  [2:0] ADD1_Op,
+	output 	ADD1_start,
 	output  [31:0]ADD2_Vj,
 	output  [31:0]ADD2_Vk,
 	output  [2:0] ADD2_Op,
+	output 	ADD2_start,	
 	output  [31:0]ADD3_Vj,
 	output  [31:0]ADD3_Vk,
 	output  [2:0] ADD3_Op,
+	output 	ADD3_start,	
 
 	output  [31:0]MULT1_Vj,
 	output  [31:0]MULT1_Vk,
 	output  [2:0] MULT1_Op,
+	output 	MULT1_start,	
 	output  [31:0]MULT2_Vj,
 	output  [31:0]MULT2_Vk,
 	output  [2:0] MULT2_Op,
+	output 	MULT2_start,	
 	
 	output [18:0] LS_addr_rd, //read address to dcache
 	output [18:0] LS_addr_wr, //write address to dcache
@@ -99,6 +104,9 @@ reg Vk_valid_add1, Vk_valid_add2, Vk_valid_add3, Vk_valid_mul1, Vk_valid_mul2;
 wire [3:0] Qj_add1, Qj_add2, Qj_add3, Qj_mul1, Qj_mul2;
 wire [3:0] Qk_add1, Qk_add2, Qk_add3, Qk_mul1, Qk_mul2;
 
+reg [3:0] Qj_add1_in, Qj_add2_in, Qj_add3_in, Qj_mul1_in, Qj_mul2_in;
+reg [3:0] Qk_add1_in, Qk_add2_in, Qk_add3_in, Qk_mul1_in, Qk_mul2_in;
+
 assign sel_load_store = (sel>0 && sel<7)?1:0;
 assign sel_add1 = (sel==7)?1:0;
 assign sel_add2 = (sel==8)?1:0;
@@ -112,32 +120,65 @@ always@(*)begin
 	if(sel_add1 && Qj==0)begin
 		Vj_add1 = Vj;
 		Vj_valid_add1 = 1;
-/*
-	end else if(sel_add1 && Qj!=0)begin
+		Qj_add1_in = 0;
+	end else if(sel_add1 && Qj!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qj ==LS_idx+1 && LS_valid)begin//Qj==1,2,3,4,5,6
+				Vj_add1 = LS_value;
+				Vj_valid_add1 =  1;
+				Qj_add1_in = 0;
+			end else if(Qj ==7 && ADD1_valid)begin//Qj==7
+				Vj_add1 = ADD1_result;
+				Vj_valid_add1 = 1;
+				Qj_add1_in = 0;
+			end else if(Qj ==8 && ADD2_valid)begin//Qj==8
+				Vj_add1 = ADD2_result;
+				Vj_valid_add1 = 1;
+				Qj_add1_in = 0;
+			end else if(Qj ==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
+				Vj_add1 = ADD3_result;
+				Vj_valid_add1 = 1;
+				Qj_add1_in = 0;
+			end else if(Qj ==10 && MULT1_valid)begin//Qj==10 ,wainting for value from MUL1
+				Vj_add1 = MULT1_result;
+				Vj_valid_add1 = 1;
+				Qj_add1_in = 0;
+			end else if(Qj ==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
+				Vj_add1 = MULT2_result;
+				Vj_valid_add1 = 1;
+				Qj_add1_in = 0;
+			end else begin
+				Vj_add1 = 0;
+				Vj_valid_add1 = 0;
+				Qj_add1_in = Qj;
+			end
+	end else if(~sel_add1 && Qj_add1==LS_idx+1 && LS_valid)begin//Qj==1,2,3,4,5,6
+		Vj_add1 = LS_value;
+		Vj_valid_add1 =  1;
+		Qj_add1_in = 0;
+	end else if(~sel_add1 && Qj_add1==7 && ADD1_valid)begin//Qj==7
+		Vj_add1 = ADD1_result;
+		Vj_valid_add1 = 1;
+		Qj_add1_in = 0;
+	end else if(~sel_add1 && Qj_add1==8 && ADD2_valid)begin//Qj==8
+		Vj_add1 = ADD2_result;
+		Vj_valid_add1 = 1;
+		Qj_add1_in = 0;
+	end else if(~sel_add1 && Qj_add1==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
+		Vj_add1 = ADD3_result;
+		Vj_valid_add1 = 1;
+		Qj_add1_in = 0;
+	end else if(~sel_add1 && Qj_add1==10 && MULT1_valid)begin//Qj==10 ,wainting for value from MUL1
+		Vj_add1 = MULT1_result;
+		Vj_valid_add1 = 1;
+		Qj_add1_in = 0;
+  	end else if(~sel_add1 && Qj_add1==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
+		Vj_add1 = MULT2_result;
+		Vj_valid_add1 = 1;
+		Qj_add1_in = 0;
+	end else begin
 		Vj_add1 = 0;
 		Vj_valid_add1 = 0;
-*/
-	end else if(~sel_add1 && Qj_add1==LS_idx && LS_valid)begin//Qj==1,2,3,4,5,6
-	Vj_add1 = LS_value;
-	Vj_valid_add1 =  1;
-	end else if(~sel_add1 && Qj_add1==7 && ADD1_valid)begin//Qj==7
-	Vj_add1 = ADD1_result;
-	Vj_valid_add1 = 1;
-	end else if(~sel_add1 && Qj_add1==8 && ADD2_valid)begin//Qj==8
-	Vj_add1 = ADD2_result;
-	Vj_valid_add1 = 1;
-	end else if(~sel_add1 && Qj_add1==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
-	Vj_add1 = ADD3_result;
-	Vj_valid_add1 = 1;
-	end else if(~sel_add1 && Qj_add1==10 && MULT1_valid)begin//Qj==10 ,wainting for value from MUL1
-	Vj_add1 = MULT1_result;
-	Vj_valid_add1 = 1;
-  	end else if(~sel_add1 && Qj_add1==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
-	Vj_add1 = MULT2_result;
-	Vj_valid_add1 = 1;
-	end else begin
-	Vj_add1 = 0;
-	Vj_valid_add1 = 0;
+		Qj_add1_in = Qj_add1; 
 	end
 end
 
@@ -148,32 +189,65 @@ always@(*)begin
 	if(sel_add2 && Qj==0)begin
 		Vj_add2 = Vj;
 		Vj_valid_add2 = 1;
-/*
-	end else if(sel_add2 && Qj!=0)begin
+		Qj_add2_in = 0;
+	end else if(sel_add2 && Qj!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qj ==LS_idx+1 && LS_valid)begin
+				Vj_add2 = LS_value;
+				Vj_valid_add2 =  1;
+				Qj_add2_in = 0;
+			end else if(Qj ==7 && ADD1_valid)begin
+				Vj_add2 = ADD1_result;
+				Vj_valid_add2 = 1;
+				Qj_add2_in = 0;
+			end else if(Qj ==8 && ADD2_valid)begin
+				Vj_add2 = ADD2_result;
+				Vj_valid_add2 = 1;
+				Qj_add2_in = 0;
+			end else if(Qj ==9 && ADD3_valid)begin
+				Vj_add2 = ADD3_result;
+				Vj_valid_add2 = 1;
+				Qj_add2_in = 0;
+			end else if(Qj ==10 && MULT1_valid)begin
+				Vj_add2 = MULT1_result;
+				Vj_valid_add2 = 1;
+				Qj_add2_in = 0;
+			end else if(Qj ==10 && MULT2_valid)begin
+				Vj_add2 = MULT2_result;
+				Vj_valid_add2 = 1;
+				Qj_add2_in = 0;
+			end else begin
+				Vj_add2 = 0;
+				Vj_valid_add2 = 0;
+				Qj_add2_in = Qj;
+			end
+	end else if(~sel_add2 && Qj_add2==LS_idx+1 && LS_valid)begin
+		Vj_add2 = LS_value;
+		Vj_valid_add2 =  1;
+		Qj_add2_in = 0;
+	end else if(~sel_add2 && Qj_add2==7 && ADD1_valid)begin
+		Vj_add2 = ADD1_result;
+		Vj_valid_add2 = 1;
+		Qj_add2_in = 0;
+	end else if(~sel_add2 && Qj_add2==8 && ADD2_valid)begin
+		Vj_add2 = ADD2_result;
+		Vj_valid_add2 = 1;
+		Qj_add2_in = 0;
+	end else if(~sel_add2 && Qj_add2==9 && ADD3_valid)begin
+		Vj_add2 = ADD3_result;
+		Vj_valid_add2 = 1;
+		Qj_add2_in = 0;
+	end else if(~sel_add2 && Qj_add2==10 && MULT1_valid)begin
+		Vj_add2 = MULT1_result;
+		Vj_valid_add2 = 1;
+		Qj_add2_in = 0;
+  	end else if(~sel_add2 && Qj_add2==10 && MULT2_valid)begin
+		Vj_add2 = MULT2_result;
+		Vj_valid_add2 = 1;
+		Qj_add2_in = 0;
+	end else begin
 		Vj_add2 = 0;
 		Vj_valid_add2 = 0;
-*/
-	end else if(~sel_add2 && Qj_add2==LS_idx && LS_valid)begin//Qj==1,2,3,4,5,6
-	Vj_add2 = LS_value;
-	Vj_valid_add2 =  1;
-	end else if(~sel_add2 && Qj_add2==7 && ADD1_valid)begin//Qj==7
-	Vj_add2 = ADD1_result;
-	Vj_valid_add2 = 1;
-	end else if(~sel_add2 && Qj_add2==8 && ADD2_valid)begin//Qj==8
-	Vj_add2 = ADD2_result;
-	Vj_valid_add2 = 1;
-	end else if(~sel_add2 && Qj_add2==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
-	Vj_add2 = ADD3_result;
-	Vj_valid_add2 = 1;
-	end else if(~sel_add2 && Qj_add2==10 && MULT1_valid)begin//Qj==10 ,wainting for value from MUL1
-	Vj_add2 = MULT1_result;
-	Vj_valid_add2 = 1;
-  	end else if(~sel_add2 && Qj_add2==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
-	Vj_add2 = MULT2_result;
-	Vj_valid_add2 = 1;
-	end else begin
-	Vj_add2 = 0;
-	Vj_valid_add2 = 0;
+		Qj_add2_in = Qj_add2; 
 	end
 end
 
@@ -182,32 +256,65 @@ always@(*)begin
 	if(sel_add3 && Qj==0)begin
 		Vj_add3 = Vj;
 		Vj_valid_add3 = 1;
-/*
-	end else if(sel_add3 && Qj!=0)begin
+		Qj_add3_in = 0;
+	end else if(sel_add3 && Qj!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qj ==LS_idx+1 && LS_valid)begin
+				Vj_add3 = LS_value;
+				Vj_valid_add3 =  1;
+				Qj_add3_in = 0;
+			end else if(Qj ==7 && ADD1_valid)begin
+				Vj_add3 = ADD1_result;
+				Vj_valid_add3 = 1;
+				Qj_add3_in = 0;
+			end else if(Qj ==8 && ADD2_valid)begin
+				Vj_add3 = ADD2_result;
+				Vj_valid_add3 = 1;
+				Qj_add3_in = 0;
+			end else if(Qj ==9 && ADD3_valid)begin
+				Vj_add3 = ADD3_result;
+				Vj_valid_add3 = 1;
+				Qj_add3_in = 0;
+			end else if(Qj ==10 && MULT1_valid)begin
+				Vj_add3 = MULT1_result;
+				Vj_valid_add3 = 1;
+				Qj_add3_in = 0;
+			end else if(Qj ==10 && MULT2_valid)begin
+				Vj_add3 = MULT2_result;
+				Vj_valid_add3 = 1;
+				Qj_add3_in = 0;
+			end else begin
+				Vj_add3 = 0;
+				Vj_valid_add3 = 0;
+				Qj_add3_in = Qj;
+			end
+	end else if(~sel_add3 && Qj_add3==LS_idx+1 && LS_valid)begin
+		Vj_add3 = LS_value;
+		Vj_valid_add3 =  1;
+		Qj_add3_in = 0;
+	end else if(~sel_add3 && Qj_add3==7 && ADD1_valid)begin
+		Vj_add3 = ADD1_result;
+		Vj_valid_add3 = 1;
+		Qj_add3_in = 0;
+	end else if(~sel_add3 && Qj_add3==8 && ADD2_valid)begin
+		Vj_add3 = ADD2_result;
+		Vj_valid_add3 = 1;
+		Qj_add3_in = 0;
+	end else if(~sel_add3 && Qj_add3==9 && ADD3_valid)begin
+		Vj_add3 = ADD3_result;
+		Vj_valid_add3 = 1;
+		Qj_add3_in = 0;
+	end else if(~sel_add3 && Qj_add3==10 && MULT1_valid)begin
+		Vj_add3 = MULT1_result;
+		Vj_valid_add3 = 1;
+		Qj_add3_in = 0;
+  	end else if(~sel_add3 && Qj_add3==10 && MULT2_valid)begin
+		Vj_add3 = MULT2_result;
+		Vj_valid_add3 = 1;
+		Qj_add3_in = 0;
+	end else begin
 		Vj_add3 = 0;
 		Vj_valid_add3 = 0;
-*/
-	end else if(~sel_add3 && Qj_add3==LS_idx && LS_valid)begin//Qj==1,2,3,4,5,6
-	Vj_add3 = LS_value;
-	Vj_valid_add3 =  1;
-	end else if(~sel_add3 && Qj_add3==7 && ADD1_valid)begin//Qj==7
-	Vj_add3 = ADD1_result;
-	Vj_valid_add3 = 1;
-	end else if(~sel_add3 && Qj_add3==8 && ADD2_valid)begin//Qj==8
-	Vj_add3 = ADD2_result;
-	Vj_valid_add3 = 1;
-	end else if(~sel_add3 && Qj_add3==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
-	Vj_add3 = ADD3_result;
-	Vj_valid_add3 = 1;
-	end else if(~sel_add3 && Qj_add3==10 && MULT1_valid)begin//Qj==10 ,wainting for value from MUL1
-	Vj_add3 = MULT1_result;
-	Vj_valid_add3 = 1;
-  	end else if(~sel_add3 && Qj_add3==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
-	Vj_add3 = MULT2_result;
-	Vj_valid_add3 = 1;
-	end else begin
-	Vj_add3 = 0;
-	Vj_valid_add3 = 0;
+		Qj_add3_in = Qj_add3; 
 	end
 end
 
@@ -216,32 +323,65 @@ always@(*)begin
 	if(sel_mul1 && Qj==0)begin
 		Vj_mul1 = Vj;
 		Vj_valid_mul1 = 1;
-/*
-	end else if(sel_mul1 && Qj!=0)begin
+		Qj_mul1_in = 0;
+	end else if(sel_mul1 && Qj!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qj ==LS_idx+1 && LS_valid)begin
+				Vj_mul1 = LS_value;
+				Vj_valid_mul1 =  1;
+				Qj_mul1_in = 0;
+			end else if(Qj ==7 && ADD1_valid)begin
+				Vj_mul1 = ADD1_result;
+				Vj_valid_mul1 = 1;
+				Qj_mul1_in = 0;
+			end else if(Qj ==8 && ADD2_valid)begin
+				Vj_mul1 = ADD2_result;
+				Vj_valid_mul1 = 1;
+				Qj_mul1_in = 0;
+			end else if(Qj ==9 && ADD3_valid)begin
+				Vj_mul1 = ADD3_result;
+				Vj_valid_mul1 = 1;
+				Qj_mul1_in = 0;
+			end else if(Qj ==10 && MULT1_valid)begin
+				Vj_mul1 = MULT1_result;
+				Vj_valid_mul1 = 1;
+				Qj_mul1_in = 0;
+			end else if(Qj ==10 && MULT2_valid)begin
+				Vj_mul1 = MULT2_result;
+				Vj_valid_mul1 = 1;
+				Qj_mul1_in = 0;
+			end else begin
+				Vj_mul1 = 0;
+				Vj_valid_mul1 = 0;
+				Qj_mul1_in = Qj;
+			end
+	end else if(~sel_mul1 && Qj_mul1==LS_idx+1 && LS_valid)begin
+		Vj_mul1 = LS_value;
+		Vj_valid_mul1 =  1;
+		Qj_mul1_in = 0;
+	end else if(~sel_mul1 && Qj_mul1==7 && ADD1_valid)begin
+		Vj_mul1 = ADD1_result;
+		Vj_valid_mul1 = 1;
+		Qj_mul1_in = 0;
+	end else if(~sel_mul1 && Qj_mul1==8 && ADD2_valid)begin
+		Vj_mul1 = ADD2_result;
+		Vj_valid_mul1 = 1;
+		Qj_mul1_in = 0;
+	end else if(~sel_mul1 && Qj_mul1==9 && ADD3_valid)begin
+		Vj_mul1 = ADD3_result;
+		Vj_valid_mul1 = 1;
+		Qj_mul1_in = 0;
+	end else if(~sel_mul1 && Qj_mul1==10 && MULT1_valid)begin
+		Vj_mul1 = MULT1_result;
+		Vj_valid_mul1 = 1;
+		Qj_mul1_in = 0;
+  	end else if(~sel_mul1 && Qj_mul1==10 && MULT2_valid)begin
+		Vj_mul1 = MULT2_result;
+		Vj_valid_mul1 = 1;
+		Qj_mul1_in = 0;
+	end else begin
 		Vj_mul1 = 0;
 		Vj_valid_mul1 = 0;
-*/
-	end else if(~sel_mul1 && Qj_mul1==LS_idx && LS_valid)begin//Qj==1,2,3,4,5,6
-	Vj_mul1 = LS_value;
-	Vj_valid_mul1 =  1;
-	end else if(~sel_mul1 && Qj_mul1==7 && ADD1_valid)begin//Qj==7
-	Vj_mul1 = ADD1_result;
-	Vj_valid_mul1 = 1;
-	end else if(~sel_mul1 && Qj_mul1==8 && ADD2_valid)begin//Qj==8
-	Vj_mul1 = ADD2_result;
-	Vj_valid_mul1 = 1;
-	end else if(~sel_mul1 && Qj_mul1==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
-	Vj_mul1 = ADD3_result;
-	Vj_valid_mul1 = 1;
-	end else if(~sel_mul1 && Qj_mul1==10 && MULT1_valid)begin//Qj==10 ,wainting for value from MUL1
-	Vj_mul1 = MULT1_result;
-	Vj_valid_mul1 = 1;
-  	end else if(~sel_mul1 && Qj_mul1==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
-	Vj_mul1 = MULT2_result;
-	Vj_valid_mul1 = 1;
-	end else begin
-	Vj_mul1 = 0;
-	Vj_valid_mul1 = 0;
+		Qj_mul1_in = Qj_mul1; 
 	end
 end
 
@@ -250,32 +390,65 @@ always@(*)begin
 	if(sel_mul2 && Qj==0)begin
 		Vj_mul2 = Vj;
 		Vj_valid_mul2 = 1;
-/*
-	end else if(sel_mul2 && Qj!=0)begin
+		Qj_mul2_in = 0;
+	end else if(sel_mul2 && Qj!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qj ==LS_idx+1 && LS_valid)begin
+				Vj_mul2 = LS_value;
+				Vj_valid_mul2 =  1;
+				Qj_mul2_in = 0;
+			end else if(Qj ==7 && ADD1_valid)begin
+				Vj_mul2 = ADD1_result;
+				Vj_valid_mul2 = 1;
+				Qj_mul2_in = 0;
+			end else if(Qj ==8 && ADD2_valid)begin
+				Vj_mul2 = ADD2_result;
+				Vj_valid_mul2 = 1;
+				Qj_mul2_in = 0;
+			end else if(Qj ==9 && ADD3_valid)begin
+				Vj_mul2 = ADD3_result;
+				Vj_valid_mul2 = 1;
+				Qj_mul2_in = 0;
+			end else if(Qj ==10 && MULT1_valid)begin
+				Vj_mul2 = MULT1_result;
+				Vj_valid_mul2 = 1;
+				Qj_mul2_in = 0;
+			end else if(Qj ==10 && MULT2_valid)begin
+				Vj_mul2 = MULT2_result;
+				Vj_valid_mul2 = 1;
+				Qj_mul2_in = 0;
+			end else begin
+				Vj_mul2 = 0;
+				Vj_valid_mul2 = 0;
+				Qj_mul2_in = Qj;
+			end
+	end else if(~sel_mul2 && Qj_mul2==LS_idx+1 && LS_valid)begin
+		Vj_mul2 = LS_value;
+		Vj_valid_mul2 =  1;
+		Qj_mul2_in = 0;
+	end else if(~sel_mul2 && Qj_mul2==7 && ADD1_valid)begin
+		Vj_mul2 = ADD1_result;
+		Vj_valid_mul2 = 1;
+		Qj_mul2_in = 0;
+	end else if(~sel_mul2 && Qj_mul2==8 && ADD2_valid)begin
+		Vj_mul2 = ADD2_result;
+		Vj_valid_mul2 = 1;
+		Qj_mul2_in = 0;
+	end else if(~sel_mul2 && Qj_mul2==9 && ADD3_valid)begin
+		Vj_mul2 = ADD3_result;
+		Vj_valid_mul2 = 1;
+		Qj_mul2_in = 0;
+	end else if(~sel_mul2 && Qj_mul2==10 && MULT1_valid)begin
+		Vj_mul2 = MULT1_result;
+		Vj_valid_mul2 = 1;
+		Qj_mul2_in = 0;
+  	end else if(~sel_mul2 && Qj_mul2==10 && MULT2_valid)begin
+		Vj_mul2 = MULT2_result;
+		Vj_valid_mul2 = 1;
+		Qj_mul2_in = 0;
+	end else begin
 		Vj_mul2 = 0;
 		Vj_valid_mul2 = 0;
-*/
-	end else if(~sel_mul2 && Qj_mul2==LS_idx && LS_valid)begin//Qj==1,2,3,4,5,6
-	Vj_mul2 = LS_value;
-	Vj_valid_mul2 =  1;
-	end else if(~sel_mul2 && Qj_mul2==7 && ADD1_valid)begin//Qj==7
-	Vj_mul2 = ADD1_result;
-	Vj_valid_mul2 = 1;
-	end else if(~sel_mul2 && Qj_mul2==8 && ADD2_valid)begin//Qj==8
-	Vj_mul2 = ADD2_result;
-	Vj_valid_mul2 = 1;
-	end else if(~sel_mul2 && Qj_mul2==9 && ADD3_valid)begin//Qj==9 ,wainting for value from ADD3
-	Vj_mul2 = ADD3_result;
-	Vj_valid_mul2 = 1;
-	end else if(~sel_mul2 && Qj_mul2==10 && MULT1_valid)begin//Qj==10 ,wainting for value from MUL1
-	Vj_mul2 = MULT1_result;
-	Vj_valid_mul2 = 1;
-  	end else if(~sel_mul2 && Qj_mul2==10 && MULT2_valid)begin//Qj==11 ,wainting for value from MUL1
-	Vj_mul2 = MULT2_result;
-	Vj_valid_mul2 = 1;
-	end else begin
-	Vj_mul2 = 0;
-	Vj_valid_mul2 = 0;
+		Qj_mul2_in = Qj_mul2; 
 	end
 end
 
@@ -283,32 +456,65 @@ always@(*)begin
 	if(sel_add1 && Qk==0)begin
 		Vk_add1 = Vk;
 		Vk_valid_add1 = 1;
-/*
-	end else if(sel_add1 && Qk!=0)begin
+		Qk_add1_in = 0;
+	end else if(sel_add1 && Qk!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qk ==LS_idx+1 && LS_valid)begin
+				Vk_add1 = LS_value;
+				Vk_valid_add1 =  1;
+				Qk_add1_in = 0;
+			end else if(Qk ==7 && ADD1_valid)begin
+				Vk_add1 = ADD1_result;
+				Vk_valid_add1 = 1;
+				Qk_add1_in = 0;
+			end else if(Qk ==8 && ADD2_valid)begin
+				Vk_add1 = ADD2_result;
+				Vk_valid_add1 = 1;
+				Qk_add1_in = 0;
+			end else if(Qk ==9 && ADD3_valid)begin
+				Vk_add1 = ADD3_result;
+				Vk_valid_add1 = 1;
+				Qk_add1_in = 0;
+			end else if(Qk ==10 && MULT1_valid)begin
+				Vk_add1 = MULT1_result;
+				Vk_valid_add1 = 1;
+				Qk_add1_in = 0;
+			end else if(Qk ==10 && MULT2_valid)begin
+				Vk_add1 = MULT2_result;
+				Vk_valid_add1 = 1;
+				Qk_add1_in = 0;
+			end else begin
+				Vk_add1 = 0;
+				Vk_valid_add1 = 0;
+				Qk_add1_in = Qk;
+			end
+	end else if(~sel_add1 && Qk_add1==LS_idx+1 && LS_valid)begin
+		Vk_add1 = LS_value;
+		Vk_valid_add1 =  1;
+		Qk_add1_in = 0;
+	end else if(~sel_add1 && Qk_add1==7 && ADD1_valid)begin
+		Vk_add1 = ADD1_result;
+		Vk_valid_add1 = 1;
+		Qk_add1_in = 0;
+	end else if(~sel_add1 && Qk_add1==8 && ADD2_valid)begin
+		Vk_add1 = ADD2_result;
+		Vk_valid_add1 = 1;
+		Qk_add1_in = 0;
+	end else if(~sel_add1 && Qk_add1==9 && ADD3_valid)begin
+		Vk_add1 = ADD3_result;
+		Vk_valid_add1 = 1;
+		Qk_add1_in = 0;
+	end else if(~sel_add1 && Qk_add1==10 && MULT1_valid)begin
+		Vk_add1 = MULT1_result;
+		Vk_valid_add1 = 1;
+		Qk_add1_in = 0;
+  	end else if(~sel_add1 && Qk_add1==10 && MULT2_valid)begin
+		Vk_add1 = MULT2_result;
+		Vk_valid_add1 = 1;
+		Qk_add1_in = 0;
+	end else begin
 		Vk_add1 = 0;
 		Vk_valid_add1 = 0;
-*/
-	end else if(~sel_add1 && Qk_add1==LS_idx && LS_valid)begin//Qk==1,2,3,4,5,6
-	Vk_add1 = LS_value;
-	Vk_valid_add1 =  1;
-	end else if(~sel_add1 && Qk_add1==7 && ADD1_valid)begin//Qk==7
-	Vk_add1 = ADD1_result;
-	Vk_valid_add1 = 1;
-	end else if(~sel_add1 && Qk_add1==8 && ADD2_valid)begin//Qk==8
-	Vk_add1 = ADD2_result;
-	Vk_valid_add1 = 1;
-	end else if(~sel_add1 && Qk_add1==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
-	Vk_add1 = ADD3_result;
-	Vk_valid_add1 = 1;
-	end else if(~sel_add1 && Qk_add1==10 && MULT1_valid)begin//Qk==10 ,wainting for value from MUL1
-	Vk_add1 = MULT1_result;
-	Vk_valid_add1 = 1;
-  	end else if(~sel_add1 && Qk_add1==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
-	Vk_add1 = MULT2_result;
-	Vk_valid_add1 = 1;
-	end else begin
-	Vk_add1 = 0;
-	Vk_valid_add1 = 0;
+		Qk_add1_in = Qk_add1; 
 	end
 end
 
@@ -319,32 +525,65 @@ always@(*)begin
 	if(sel_add2 && Qk==0)begin
 		Vk_add2 = Vk;
 		Vk_valid_add2 = 1;
-/*
-	end else if(sel_add2 && Qk!=0)begin
+		Qk_add2_in = 0;
+	end else if(sel_add2 && Qk!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qk ==LS_idx+1 && LS_valid)begin
+				Vk_add2 = LS_value;
+				Vk_valid_add2 =  1;
+				Qk_add2_in = 0;
+			end else if(Qk ==7 && ADD1_valid)begin
+				Vk_add2 = ADD1_result;
+				Vk_valid_add2 = 1;
+				Qk_add2_in = 0;
+			end else if(Qk ==8 && ADD2_valid)begin
+				Vk_add2 = ADD2_result;
+				Vk_valid_add2 = 1;
+				Qk_add2_in = 0;
+			end else if(Qk ==9 && ADD3_valid)begin
+				Vk_add2 = ADD3_result;
+				Vk_valid_add2 = 1;
+				Qk_add2_in = 0;
+			end else if(Qk ==10 && MULT1_valid)begin
+				Vk_add2 = MULT1_result;
+				Vk_valid_add2 = 1;
+				Qk_add2_in = 0;
+			end else if(Qk ==10 && MULT2_valid)begin
+				Vk_add2 = MULT2_result;
+				Vk_valid_add2 = 1;
+				Qk_add2_in = 0;
+			end else begin
+				Vk_add2 = 0;
+				Vk_valid_add2 = 0;
+				Qk_add2_in = Qk;
+			end
+	end else if(~sel_add2 && Qk_add2==LS_idx+1 && LS_valid)begin
+		Vk_add2 = LS_value;
+		Vk_valid_add2 =  1;
+		Qk_add2_in = 0;
+	end else if(~sel_add2 && Qk_add2==7 && ADD1_valid)begin
+		Vk_add2 = ADD1_result;
+		Vk_valid_add2 = 1;
+		Qk_add2_in = 0;
+	end else if(~sel_add2 && Qk_add2==8 && ADD2_valid)begin
+		Vk_add2 = ADD2_result;
+		Vk_valid_add2 = 1;
+		Qk_add2_in = 0;
+	end else if(~sel_add2 && Qk_add2==9 && ADD3_valid)begin
+		Vk_add2 = ADD3_result;
+		Vk_valid_add2 = 1;
+		Qk_add2_in = 0;
+	end else if(~sel_add2 && Qk_add2==10 && MULT1_valid)begin
+		Vk_add2 = MULT1_result;
+		Vk_valid_add2 = 1;
+		Qk_add2_in = 0;
+  	end else if(~sel_add2 && Qk_add2==10 && MULT2_valid)begin
+		Vk_add2 = MULT2_result;
+		Vk_valid_add2 = 1;
+		Qk_add2_in = 0;
+	end else begin
 		Vk_add2 = 0;
 		Vk_valid_add2 = 0;
-*/
-	end else if(~sel_add2 && Qk_add2==LS_idx && LS_valid)begin//Qk==1,2,3,4,5,6
-	Vk_add2 = LS_value;
-	Vk_valid_add2 =  1;
-	end else if(~sel_add2 && Qk_add2==7 && ADD1_valid)begin//Qk==7
-	Vk_add2 = ADD1_result;
-	Vk_valid_add2 = 1;
-	end else if(~sel_add2 && Qk_add2==8 && ADD2_valid)begin//Qk==8
-	Vk_add2 = ADD2_result;
-	Vk_valid_add2 = 1;
-	end else if(~sel_add2 && Qk_add2==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
-	Vk_add2 = ADD3_result;
-	Vk_valid_add2 = 1;
-	end else if(~sel_add2 && Qk_add2==10 && MULT1_valid)begin//Qk==10 ,wainting for value from MUL1
-	Vk_add2 = MULT1_result;
-	Vk_valid_add2 = 1;
-  	end else if(~sel_add2 && Qk_add2==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
-	Vk_add2 = MULT2_result;
-	Vk_valid_add2 = 1;
-	end else begin
-	Vk_add2 = 0;
-	Vk_valid_add2 = 0;
+		Qk_add2_in = Qk_add2; 
 	end
 end
 
@@ -353,32 +592,65 @@ always@(*)begin
 	if(sel_add3 && Qk==0)begin
 		Vk_add3 = Vk;
 		Vk_valid_add3 = 1;
-/*
-	end else if(sel_add3 && Qk!=0)begin
+		Qk_add3_in = 0;
+	end else if(sel_add3 && Qk!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qk ==LS_idx+1 && LS_valid)begin
+				Vk_add3 = LS_value;
+				Vk_valid_add3 =  1;
+				Qk_add3_in = 0;
+			end else if(Qk ==7 && ADD1_valid)begin
+				Vk_add3 = ADD1_result;
+				Vk_valid_add3 = 1;
+				Qk_add3_in = 0;
+			end else if(Qk ==8 && ADD2_valid)begin
+				Vk_add3 = ADD2_result;
+				Vk_valid_add3 = 1;
+				Qk_add3_in = 0;
+			end else if(Qk ==9 && ADD3_valid)begin
+				Vk_add3 = ADD3_result;
+				Vk_valid_add3 = 1;
+				Qk_add3_in = 0;
+			end else if(Qk ==10 && MULT1_valid)begin
+				Vk_add3 = MULT1_result;
+				Vk_valid_add3 = 1;
+				Qk_add3_in = 0;
+			end else if(Qk ==10 && MULT2_valid)begin
+				Vk_add3 = MULT2_result;
+				Vk_valid_add3 = 1;
+				Qk_add3_in = 0;
+			end else begin
+				Vk_add3 = 0;
+				Vk_valid_add3 = 0;
+				Qk_add3_in = Qk;
+			end
+	end else if(~sel_add3 && Qk_add3==LS_idx+1 && LS_valid)begin
+		Vk_add3 = LS_value;
+		Vk_valid_add3 =  1;
+		Qk_add3_in = 0;
+	end else if(~sel_add3 && Qk_add3==7 && ADD1_valid)begin
+		Vk_add3 = ADD1_result;
+		Vk_valid_add3 = 1;
+		Qk_add3_in = 0;
+	end else if(~sel_add3 && Qk_add3==8 && ADD2_valid)begin
+		Vk_add3 = ADD2_result;
+		Vk_valid_add3 = 1;
+		Qk_add3_in = 0;
+	end else if(~sel_add3 && Qk_add3==9 && ADD3_valid)begin
+		Vk_add3 = ADD3_result;
+		Vk_valid_add3 = 1;
+		Qk_add3_in = 0;
+	end else if(~sel_add3 && Qk_add3==10 && MULT1_valid)begin
+		Vk_add3 = MULT1_result;
+		Vk_valid_add3 = 1;
+		Qk_add3_in = 0;
+  	end else if(~sel_add3 && Qk_add3==10 && MULT2_valid)begin
+		Vk_add3 = MULT2_result;
+		Vk_valid_add3 = 1;
+		Qk_add3_in = 0;
+	end else begin
 		Vk_add3 = 0;
 		Vk_valid_add3 = 0;
-*/
-	end else if(~sel_add3 && Qk_add3==LS_idx && LS_valid)begin//Qk==1,2,3,4,5,6
-	Vk_add3 = LS_value;
-	Vk_valid_add3 =  1;
-	end else if(~sel_add3 && Qk_add3==7 && ADD1_valid)begin//Qk==7
-	Vk_add3 = ADD1_result;
-	Vk_valid_add3 = 1;
-	end else if(~sel_add3 && Qk_add3==8 && ADD2_valid)begin//Qk==8
-	Vk_add3 = ADD2_result;
-	Vk_valid_add3 = 1;
-	end else if(~sel_add3 && Qk_add3==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
-	Vk_add3 = ADD3_result;
-	Vk_valid_add3 = 1;
-	end else if(~sel_add3 && Qk_add3==10 && MULT1_valid)begin//Qk==10 ,wainting for value from MUL1
-	Vk_add3 = MULT1_result;
-	Vk_valid_add3 = 1;
-  	end else if(~sel_add3 && Qk_add3==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
-	Vk_add3 = MULT2_result;
-	Vk_valid_add3 = 1;
-	end else begin
-	Vk_add3 = 0;
-	Vk_valid_add3 = 0;
+		Qk_add3_in = Qk_add3; 
 	end
 end
 
@@ -387,32 +659,65 @@ always@(*)begin
 	if(sel_mul1 && Qk==0)begin
 		Vk_mul1 = Vk;
 		Vk_valid_mul1 = 1;
-/*
-	end else if(sel_mul1 && Qk!=0)begin
+		Qk_mul1_in = 0;
+	end else if(sel_mul1 && Qk!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qk ==LS_idx+1 && LS_valid)begin
+				Vk_mul1 = LS_value;
+				Vk_valid_mul1 =  1;
+				Qk_mul1_in = 0;
+			end else if(Qk ==7 && ADD1_valid)begin
+				Vk_mul1 = ADD1_result;
+				Vk_valid_mul1 = 1;
+				Qk_mul1_in = 0;
+			end else if(Qk ==8 && ADD2_valid)begin
+				Vk_mul1 = ADD2_result;
+				Vk_valid_mul1 = 1;
+				Qk_mul1_in = 0;
+			end else if(Qk ==9 && ADD3_valid)begin
+				Vk_mul1 = ADD3_result;
+				Vk_valid_mul1 = 1;
+				Qk_mul1_in = 0;
+			end else if(Qk ==10 && MULT1_valid)begin
+				Vk_mul1 = MULT1_result;
+				Vk_valid_mul1 = 1;
+				Qk_mul1_in = 0;
+			end else if(Qk ==10 && MULT2_valid)begin
+				Vk_mul1 = MULT2_result;
+				Vk_valid_mul1 = 1;
+				Qk_mul1_in = 0;
+			end else begin
+				Vk_mul1 = 0;
+				Vk_valid_mul1 = 0;
+				Qk_mul1_in = Qk;
+			end
+	end else if(~sel_mul1 && Qk_mul1==LS_idx+1 && LS_valid)begin
+		Vk_mul1 = LS_value;
+		Vk_valid_mul1 =  1;
+		Qk_mul1_in = 0;
+	end else if(~sel_mul1 && Qk_mul1==7 && ADD1_valid)begin
+		Vk_mul1 = ADD1_result;
+		Vk_valid_mul1 = 1;
+		Qk_mul1_in = 0;
+	end else if(~sel_mul1 && Qk_mul1==8 && ADD2_valid)begin
+		Vk_mul1 = ADD2_result;
+		Vk_valid_mul1 = 1;
+		Qk_mul1_in = 0;
+	end else if(~sel_mul1 && Qk_mul1==9 && ADD3_valid)begin
+		Vk_mul1 = ADD3_result;
+		Vk_valid_mul1 = 1;
+		Qk_mul1_in = 0;
+	end else if(~sel_mul1 && Qk_mul1==10 && MULT1_valid)begin
+		Vk_mul1 = MULT1_result;
+		Vk_valid_mul1 = 1;
+		Qk_mul1_in = 0;
+  	end else if(~sel_mul1 && Qk_mul1==10 && MULT2_valid)begin
+		Vk_mul1 = MULT2_result;
+		Vk_valid_mul1 = 1;
+		Qk_mul1_in = 0;
+	end else begin
 		Vk_mul1 = 0;
 		Vk_valid_mul1 = 0;
-*/
-	end else if(~sel_mul1 && Qk_mul1==LS_idx && LS_valid)begin//Qk==1,2,3,4,5,6
-	Vk_mul1 = LS_value;
-	Vk_valid_mul1 =  1;
-	end else if(~sel_mul1 && Qk_mul1==7 && ADD1_valid)begin//Qk==7
-	Vk_mul1 = ADD1_result;
-	Vk_valid_mul1 = 1;
-	end else if(~sel_mul1 && Qk_mul1==8 && ADD2_valid)begin//Qk==8
-	Vk_mul1 = ADD2_result;
-	Vk_valid_mul1 = 1;
-	end else if(~sel_mul1 && Qk_mul1==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
-	Vk_mul1 = ADD3_result;
-	Vk_valid_mul1 = 1;
-	end else if(~sel_mul1 && Qk_mul1==10 && MULT1_valid)begin//Qk==10 ,wainting for value from MUL1
-	Vk_mul1 = MULT1_result;
-	Vk_valid_mul1 = 1;
-  	end else if(~sel_mul1 && Qk_mul1==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
-	Vk_mul1 = MULT2_result;
-	Vk_valid_mul1 = 1;
-	end else begin
-	Vk_mul1 = 0;
-	Vk_valid_mul1 = 0;
+		Qk_mul1_in = Qk_mul1; 
 	end
 end
 
@@ -421,32 +726,65 @@ always@(*)begin
 	if(sel_mul2 && Qk==0)begin
 		Vk_mul2 = Vk;
 		Vk_valid_mul2 = 1;
-/*
-	end else if(sel_mul2 && Qk!=0)begin
+		Qk_mul2_in = 0;
+	end else if(sel_mul2 && Qk!=0)begin//the selected reservation station can recive the correct waiting data frm the CDB ,in the same cycle
+			if(Qk ==LS_idx+1 && LS_valid)begin
+				Vk_mul2 = LS_value;
+				Vk_valid_mul2 =  1;
+				Qk_mul2_in = 0;
+			end else if(Qk ==7 && ADD1_valid)begin
+				Vk_mul2 = ADD1_result;
+				Vk_valid_mul2 = 1;
+				Qk_mul2_in = 0;
+			end else if(Qk ==8 && ADD2_valid)begin
+				Vk_mul2 = ADD2_result;
+				Vk_valid_mul2 = 1;
+				Qk_mul2_in = 0;
+			end else if(Qk ==9 && ADD3_valid)begin
+				Vk_mul2 = ADD3_result;
+				Vk_valid_mul2 = 1;
+				Qk_mul2_in = 0;
+			end else if(Qk ==10 && MULT1_valid)begin
+				Vk_mul2 = MULT1_result;
+				Vk_valid_mul2 = 1;
+				Qk_mul2_in = 0;
+			end else if(Qk ==10 && MULT2_valid)begin
+				Vk_mul2 = MULT2_result;
+				Vk_valid_mul2 = 1;
+				Qk_mul2_in = 0;
+			end else begin
+				Vk_mul2 = 0;
+				Vk_valid_mul2 = 0;
+				Qk_mul2_in = Qk;
+			end
+	end else if(~sel_mul2 && Qk_mul2==LS_idx+1 && LS_valid)begin
+		Vk_mul2 = LS_value;
+		Vk_valid_mul2 =  1;
+		Qk_mul2_in = 0;
+	end else if(~sel_mul2 && Qk_mul2==7 && ADD1_valid)begin
+		Vk_mul2 = ADD1_result;
+		Vk_valid_mul2 = 1;
+		Qk_mul2_in = 0;
+	end else if(~sel_mul2 && Qk_mul2==8 && ADD2_valid)begin
+		Vk_mul2 = ADD2_result;
+		Vk_valid_mul2 = 1;
+		Qk_mul2_in = 0;
+	end else if(~sel_mul2 && Qk_mul2==9 && ADD3_valid)begin
+		Vk_mul2 = ADD3_result;
+		Vk_valid_mul2 = 1;
+		Qk_mul2_in = 0;
+	end else if(~sel_mul2 && Qk_mul2==10 && MULT1_valid)begin
+		Vk_mul2 = MULT1_result;
+		Vk_valid_mul2 = 1;
+		Qk_mul2_in = 0;
+  	end else if(~sel_mul2 && Qk_mul2==10 && MULT2_valid)begin
+		Vk_mul2 = MULT2_result;
+		Vk_valid_mul2 = 1;
+		Qk_mul2_in = 0;
+	end else begin
 		Vk_mul2 = 0;
 		Vk_valid_mul2 = 0;
-*/
-	end else if(~sel_mul2 && Qk_mul2==LS_idx && LS_valid)begin//Qk==1,2,3,4,5,6
-	Vk_mul2 = LS_value;
-	Vk_valid_mul2 =  1;
-	end else if(~sel_mul2 && Qk_mul2==7 && ADD1_valid)begin//Qk==7
-	Vk_mul2 = ADD1_result;
-	Vk_valid_mul2 = 1;
-	end else if(~sel_mul2 && Qk_mul2==8 && ADD2_valid)begin//Qk==8
-	Vk_mul2 = ADD2_result;
-	Vk_valid_mul2 = 1;
-	end else if(~sel_mul2 && Qk_mul2==9 && ADD3_valid)begin//Qk==9 ,wainting for value from ADD3
-	Vk_mul2 = ADD3_result;
-	Vk_valid_mul2 = 1;
-	end else if(~sel_mul2 && Qk_mul2==10 && MULT1_valid)begin//Qk==10 ,wainting for value from MUL1
-	Vk_mul2 = MULT1_result;
-	Vk_valid_mul2 = 1;
-  	end else if(~sel_mul2 && Qk_mul2==10 && MULT2_valid)begin//Qk==11 ,wainting for value from MUL1
-	Vk_mul2 = MULT2_result;
-	Vk_valid_mul2 = 1;
-	end else begin
-	Vk_mul2 = 0;
-	Vk_valid_mul2 = 0;
+		Qk_mul2_in = Qk_mul2; 
 	end
 end
 
@@ -484,8 +822,8 @@ LS_buff LS_buff(
 	.sel(sel_load_store),
 	.Op_in(operation),
 	.offset(imm),
-	.rs(Vj),//is the value from the register that contains the address (i.e rs1 ) value is from Vj
-	.Vi_in(Vk),//is the value from the register that contains the data to be stored (i.e rs2 ) value is from Vk
+	.rs(Vk),//is the value from the register that contains the address (i.e rs1 ) value is from Vk
+	.Vi_in(Vj),//is the value from the register that contains the data to be stored (i.e rs2 ) value is from Vj
 	.Qi_in(Qk),//the renamed value for rs2
 	.rd_addr(LS_addr_rd),
 	.wr_addr(LS_addr_wr),
@@ -515,12 +853,14 @@ RS_add RS_add1
     .Vj_in(Vj_add1),//value may come from regfile when the inst is issued or when the data it is waiting for on the common data bus is valid
     .Vk_valid(Vk_valid_add1),
     .Vk_in(Vk_add1),
-    .Qj_in(Qj),//input from order manager
-    .Qk_in(Qk),
+    .Qj_in(Qj_add1_in),//input from order manager
+    .Qk_in(Qk_add1_in),
     .Vj(ADD1_Vj),	//output to exe units
     .Vk(ADD1_Vk),
 	.Qj(Qj_add1),   //for Vj_valid control in RS_top 
     .Qk(Qk_add1),
+	.Op(ADD1_Op),
+	.start(ADD1_start),		
     .busy(ADD1_busy)	//output busy information to the order manager
 );
 
@@ -534,12 +874,14 @@ RS_add RS_add2
     .Vj_in(Vj_add2),
     .Vk_valid(Vk_valid_add2),
     .Vk_in(Vk_add2),
-    .Qj_in(Qj),
-    .Qk_in(Qk),
+    .Qj_in(Qj_add2_in),
+    .Qk_in(Qk_add2_in),
     .Vj(ADD2_Vj),	
     .Vk(ADD2_Vk),
 	.Qj(Qj_add2),   
     .Qk(Qk_add2),
+	.Op(ADD2_Op),
+	.start(ADD2_start),	
     .busy(ADD2_busy)	
 );
 
@@ -553,12 +895,14 @@ RS_add RS_add3
     .Vj_in(Vj_add3),
     .Vk_valid(Vk_valid_add3),
     .Vk_in(Vk_add3),
-    .Qj_in(Qj),
-    .Qk_in(Qk),
+    .Qj_in(Qj_add3_in),
+    .Qk_in(Qk_add3_in),
     .Vj(ADD3_Vj),	
     .Vk(ADD3_Vk),
 	.Qj(Qj_add3),   
     .Qk(Qk_add3),
+	.Op(ADD3_Op),
+	.start(ADD3_start),
     .busy(ADD3_busy)	
 );
 
@@ -572,12 +916,14 @@ RS_mul RS_mul1
     .Vj_in(Vj_mul1),
     .Vk_valid(Vk_valid_mul1),
     .Vk_in(Vk_mul1),
-    .Qj_in(Qj),
-    .Qk_in(Qk),
+    .Qj_in(Qj_mul1_in),
+    .Qk_in(Qk_mul1_in),
     .Vj(MULT1_Vj),	
     .Vk(MULT1_Vk),
 	.Qj(Qj_mul1),   
     .Qk(Qk_mul1),
+	.Op(MULT1_Op),
+	.start(MULT1_start),
     .busy(MUL1_busy)	
 );
 
@@ -591,12 +937,14 @@ RS_mul RS_mul2
     .Vj_in(Vj_mul2),
     .Vk_valid(Vk_valid_mul2),
     .Vk_in(Vk_mul2),
-    .Qj_in(Qj),
-    .Qk_in(Qk),
+    .Qj_in(Qj_mul2_in),
+    .Qk_in(Qk_mul2_in),
     .Vj(MULT2_Vj),	
     .Vk(MULT2_Vk),
 	.Qj(Qj_mul2),   
     .Qk(Qk_mul2),
+	.Op(MULT2_Op),
+	.start(MULT2_start),
     .busy(MUL2_busy)	
 );
 

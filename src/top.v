@@ -168,8 +168,8 @@ RS_top RS_top0(
 	.clk(clk),
 	.rst_n(rst_n),
 	.operation(operation),
-	.Vj(rs1_data),   //value from register file
-	.Vk(rs2_data),
+	.Vj(rs2_data),   //value from register file
+	.Vk(rs1_data),
 	.sel(rs_idx),       //select which reservation station
 	.imm(imm),
 //rename
@@ -189,23 +189,28 @@ RS_top RS_top0(
 	.LS_valid(LS_valid),
 	.LS_value(LS_value),
 	.LS_idx(LS_idx),
-//outputs to cdb
+//outputs to exe_unit
 	.ADD1_Vj(ADD1_Vj),
 	.ADD1_Vk(ADD1_Vk),
 	.ADD1_Op(ADD1_op),
+	.ADD1_start(ADD1_start),
 	.ADD2_Vj(ADD2_Vj),
 	.ADD2_Vk(ADD2_Vk),
 	.ADD2_Op(ADD2_op),
+	.ADD2_start(ADD2_start),
 	.ADD3_Vj(ADD3_Vj),
 	.ADD3_Vk(ADD3_Vk),
 	.ADD3_Op(ADD2_op),
+	.ADD3_start(ADD3_start),
 
 	.MULT1_Vj(MULT1_Vj),
 	.MULT1_Vk(MULT1_Vk),
 	.MULT1_Op(MULT1_op),
+	.MULT1_start(MUL1_start),
 	.MULT2_Vj(MULT2_Vj),
 	.MULT2_Vk(MULT2_Vk),
 	.MULT2_Op(MULT2_op),
+	.MULT2_start(MUL2_start),
 
 	.LS_addr_rd(addr_dcache),
 	.LS_addr_wr(addr_dcache),

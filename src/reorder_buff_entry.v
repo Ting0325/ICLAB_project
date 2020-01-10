@@ -11,12 +11,12 @@ module reorder_buff_entry#(
 	input [31:0] value,
 	input [2:0] head, // to determine if it your turn to commit 
 	output [4:0] dest,
-	output reg wen,
+	output wen,
 	output reg busy,
 	output [3:0] waiting_for // for selecting valid signal from common data bus
 );
 
-reg wen_next;
+//reg wen_next;
 reg [4:0] dest_next;
 reg [3:0] from, from_next;
 reg [31:0] val,val_next;
@@ -33,13 +33,13 @@ assign waiting_for = from;
 always@(posedge clk)begin
 	if(~rst_n)begin
 		state <= 0;
-		wen <= 0;
+		//wen <= 0;
 		from <= 0;//keeps track of which exe unit this instruction is waiting for
 		val <= 0;
 		instruction <= 0;
 	end else begin
 		state <= next_state;
-		wen <= wen_next;
+		//wen <= wen_next;
 		from <= from_next;
 		val <= val_next;
 		instruction <= instruction_next;
@@ -52,7 +52,7 @@ always@(*)begin
 	case(state)
 		IDLE:	begin
 					busy = 0;
-					wen_next = 0;
+					//wen_next = 0;
 					if(sel)begin 
 						next_state = WAIT;
 						instruction_next = instruction_in;
@@ -70,12 +70,13 @@ always@(*)begin
 					instruction_next = instruction;
 					from_next = from;
 					if(valid)begin 
-						next_state = COMMIT;
-						wen_next = 0;
 						val_next = value;  //value = value_in, from cdb
+						if(head==entry_number)
+							next_state = IDLE;
+						else
+							next_state = COMMIT;
 					end else begin 
 						next_state = WAIT;
-				 		wen_next = 0;
 						val_next = value;
 					end
 				end
@@ -85,11 +86,11 @@ always@(*)begin
 					val_next = val;
 					if(head==entry_number) begin
 						instruction_next = 0;
-						wen_next = 1;
+						//wen_next = 1;
 						next_state = IDLE;
 					end else begin
 						instruction_next = instruction;
-						wen_next = 0;
+						//wen_next = 0;
 						next_state = COMMIT;
 					end
 				end
@@ -98,5 +99,6 @@ end
 
 
 assign dest = instruction[11:7];
+assign wen = ((state==COMMIT&&head==entry_number) || (state==WAIT&&head==entry_number&&valid))?1:0;
 
 endmodule

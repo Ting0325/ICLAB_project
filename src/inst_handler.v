@@ -77,88 +77,92 @@ always@(*)begin
 		struct_haz  = 1;
 		reservation_station_idx = 12;
 	end else begin
-	case(operation)	
-		LOAD:	begin
-					if(ls_full)begin
-						struct_haz  = 1;
-						reservation_station_idx = 12;  // 12:garbage reservation station			
-					end else begin
-						struct_haz  = 0;
-						reservation_station_idx = ls_entry+1;//ex if ls_entyr = 0 ,reservation_station_idx = 1
-					end
-				
-				end
-		STORE:	begin
-               			if(ls_full)begin
-                        struct_haz  = 1;
-                        reservation_station_idx = 12;       
-                    end else begin
-                        struct_haz  = 0;
-                        reservation_station_idx = ls_entry;
+        case(operation)	
+            LOAD:	begin
+                        if(ls_full)begin
+                            struct_haz  = 1;
+                            reservation_station_idx = 12;  // 12:garbage reservation station			
+                        end else begin
+                            struct_haz  = 0;
+                            reservation_station_idx = ls_entry+1;//ex if ls_entyr = 0 ,reservation_station_idx = 1
+                        end
+                    
+                    end
+            STORE:	begin
+                        if(ls_full)begin
+                            struct_haz  = 1;
+                            reservation_station_idx = 12;       
+                        end else begin
+                            struct_haz  = 0;
+                            reservation_station_idx = ls_entry;
+                        end
+
+                    end
+            ADD:	begin
+                        if(!busy_add1)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 7; // 7:ADD1
+                        end else if(!busy_add2)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 8; 
+                        end else if(!busy_add3)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 9; // 9:ADD3
+                        end else begin
+                            struct_haz  = 1;
+                            reservation_station_idx = 12;
+                        end
+
+                    end
+            SUB:	begin
+                        if(!busy_add1)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 7;
+                        end else if(!busy_add2)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 8;
+                        end else if(!busy_add3)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 9;
+                        end else begin
+                            struct_haz  = 1;
+                            reservation_station_idx = 12;
+                        end
+
                     end
 
-                end
-		ADD:	begin
-                    if(!busy_add1)begin
+            MUL:	begin
+                        if(!busy_mul1)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 10; // 10:MUL1
+                        end else if(!busy_mul2)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 11;
+                        end else begin
+                            struct_haz  = 1;
+                            reservation_station_idx = 12;
+                        end
+
+                    end
+
+            DIV:	begin
+                        if(!busy_mul1)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 10;
+                        end else if(!busy_mul2)begin
+                            struct_haz  = 0;
+                            reservation_station_idx = 11;
+                        end else begin
+                            struct_haz  = 1;
+                            reservation_station_idx = 12;
+                        end
+
+                    end
+        default:    begin
                         struct_haz  = 0;
-                        reservation_station_idx = 7; // 7:ADD1
-					end else if(!busy_add2)begin
-       					struct_haz  = 0;
-                        reservation_station_idx = 8; 
-					end else if(!busy_add3)begin
-                        struct_haz  = 0;
-                        reservation_station_idx = 9; // 9:ADD3
-                    end else begin
-                        struct_haz  = 1;
                         reservation_station_idx = 12;
                     end
-
-                end
-		SUB:	begin
-                    if(!busy_add1)begin
-                        struct_haz  = 0;
-                        reservation_station_idx = 7;
-                    end else if(!busy_add2)begin
-                        struct_haz  = 0;
-                        reservation_station_idx = 8;
-                    end else if(!busy_add3)begin
-                        struct_haz  = 0;
-                        reservation_station_idx = 9;
-                    end else begin
-                        struct_haz  = 1;
-                        reservation_station_idx = 12;
-                    end
-
-                end
-
-		MUL:	begin
-                    if(!busy_mul1)begin
-                        struct_haz  = 0;
-                        reservation_station_idx = 10; // 10:MUL1
-                    end else if(!busy_mul2)begin
-                        struct_haz  = 0;
-                        reservation_station_idx = 11;
-                    end else begin
-                        struct_haz  = 1;
-                        reservation_station_idx = 12;
-                    end
-
-                end
-
-		DIV:	begin
-                    if(!busy_mul1)begin
-                        struct_haz  = 0;
-                        reservation_station_idx = 10;
-                    end else if(!busy_mul2)begin
-                        struct_haz  = 0;
-                        reservation_station_idx = 11;
-                    end else begin
-                        struct_haz  = 1;
-                        reservation_station_idx = 12;
-                    end
-
-                end
-	endcase
+        endcase
 	end
 end
 

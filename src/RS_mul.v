@@ -14,10 +14,12 @@ module RS_mul
 	output reg [31:0] Vk,
 	output reg [3:0] Qj,	//for Vj_valid control in RS_top 
 	output reg [3:0] Qk,
+	output reg [2:0] Op,
+	output start,
 	output busy
 );
 
-reg [2:0] Op, Op_next;
+reg [2:0] Op_next;
 reg [31:0] Vj_next,Vk_next;
 reg [3:0] Qj_next,Qk_next;
 reg [5:0] timer,timer_next;
@@ -33,6 +35,7 @@ always@(posedge clk)begin
 		Qj <= 0;
 		Qk <= 0; 
         Op <= 0;
+		timer <= 0;
 	end else begin 
 		state <= next_state;
         Vj <= Vj_next;
@@ -40,6 +43,7 @@ always@(posedge clk)begin
         Qj <= Qj_next;
         Qk <= Qk_next;
         Op <= Op_next;
+		timer <= timer_next;
 	end
 end
 //next state logic
@@ -125,6 +129,6 @@ end
 
 //output logic
 assign busy = (state==WAIT||state==EXE)?1:0;
-
+assign start = (state==EXE)?1:0;
 
 endmodule

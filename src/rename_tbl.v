@@ -76,6 +76,6 @@ always@(posedge clk)begin
 		*/
 	end
 end
-assign Qj = name[rs1];
-assign Qk = name[rs2];
+assign Qj = name[rs2];
+assign Qk = name[rs1];
 endmodule
