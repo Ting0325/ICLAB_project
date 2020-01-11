@@ -125,11 +125,12 @@ reorder_buff_top reorder_buff_top0(
 );
 
 //renaming table
-
+wire [3:0] new_name_in;
+assign new_name_in = (operation==5)?0:rs_idx;
 rename_tbl rename_tbl0(
 	.clk(clk),
 	.rst_n(rst_n),
-	.new_name_in(rs_idx),//from inst_mamanger or is set to zero during commit (if there are no pending instructions whose dest is being committed), or rs_idx (new_name) assigned by inst_handler
+	.new_name_in(new_name_in),//rs_idx//from inst_mamanger or is set to zero during commit (if there are no pending instructions whose dest is being committed), or rs_idx (new_name) assigned by inst_handler
 	.new_name_index(rd), // from inst rd
 	.to_zero_index(commit_idx),
 	.original_name(original_name),	

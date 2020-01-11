@@ -94,7 +94,7 @@ always@(*)begin
                             reservation_station_idx = 12;       
                         end else begin
                             struct_haz  = 0;
-                            reservation_station_idx = ls_entry;
+                            reservation_station_idx = ls_entry+1;
                         end
 
                     end

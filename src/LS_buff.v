@@ -131,11 +131,11 @@ end
 always@(*)begin
 	case(state)
 		ENTRY0:	begin
-					busy_next[1] = busy[1];
-					busy_next[2] = busy[2];
-					busy_next[3] = busy[3];
-					busy_next[4] = busy[4];
-					busy_next[5] = busy[5];
+					busy_next[1] = (busy[1] && (head==2))?0:busy[1]; 
+					busy_next[2] = (busy[2] && (head==3))?0:busy[2]; 
+					busy_next[3] = (busy[3] && (head==4))?0:busy[3]; 
+					busy_next[4] = (busy[4] && (head==5))?0:busy[4]; 
+					busy_next[5] = (busy[5] && (head==1))?0:busy[5]; 
 					addr_next[1] = addr[1];
 					addr_next[2] = addr[2];
 					addr_next[3] = addr[3];
@@ -159,56 +159,56 @@ always@(*)begin
                     end
 
 					if(busy[1])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[1]==LS_idx+1&&LS_valid) begin
 							Vi_next[1] =LS_value;
 							Qi_next[1] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[1]==7)begin
 							Vi_next[1] = ADD1_result;
 							Qi_next[1] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[1]==8)begin
 							Vi_next[1] = ADD2_result;
 							Qi_next[1] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[1]==9)begin
 							Vi_next[1] = ADD3_result;
 							Qi_next[1] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[1]==10)begin
 							Vi_next[1] = MUL1_result;
 							Qi_next[1] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[1]==11)begin
 							Vi_next[1] = MUL2_result;
 							Qi_next[1] = 0;
 						end else begin
 							Vi_next[1] = 0;
-							Qi_next[1] = Qi[0];
+							Qi_next[1] = Qi[1];
 						end
 					end 
 					else begin
 						Vi_next[1] = 0;
 						Qi_next[1] = 0;
-					end
+					end					
 
 					if(busy[2])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[2]==LS_idx+1&&LS_valid) begin
 							Vi_next[2] =LS_value;
 							Qi_next[2] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[2]==7)begin
 							Vi_next[2] = ADD1_result;
 							Qi_next[2] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[2]==8)begin
 							Vi_next[2] = ADD2_result;
 							Qi_next[2] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[2]==9)begin
 							Vi_next[2] = ADD3_result;
 							Qi_next[2] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[2]==10)begin
 							Vi_next[2] = MUL1_result;
 							Qi_next[2] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[2]==11)begin
 							Vi_next[2] = MUL2_result;
 							Qi_next[2] = 0;
 						end else begin
 							Vi_next[2] = 0;
-							Qi_next[2] = Qi[0];
+							Qi_next[2] = Qi[2];
 						end
 					end 
 					else begin
@@ -217,27 +217,27 @@ always@(*)begin
 					end
 
 					if(busy[3])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[3]==LS_idx+1&&LS_valid) begin
 							Vi_next[3] =LS_value;
 							Qi_next[3] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[3]==7)begin
 							Vi_next[3] = ADD1_result;
 							Qi_next[3] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[3]==8)begin
 							Vi_next[3] = ADD2_result;
 							Qi_next[3] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[3]==9)begin
 							Vi_next[3] = ADD3_result;
 							Qi_next[3] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[3]==10)begin
 							Vi_next[3] = MUL1_result;
 							Qi_next[3] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[3]==11)begin
 							Vi_next[3] = MUL2_result;
 							Qi_next[3] = 0;
 						end else begin
 							Vi_next[3] = 0;
-							Qi_next[3] = Qi[0];
+							Qi_next[3] = Qi[3];
 						end
 					end 
 					else begin
@@ -246,27 +246,27 @@ always@(*)begin
 					end
 
 					if(busy[4])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[4]==LS_idx+1&&LS_valid) begin
 							Vi_next[4] =LS_value;
 							Qi_next[4] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[4]==7)begin
 							Vi_next[4] = ADD1_result;
 							Qi_next[4] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[4]==8)begin
 							Vi_next[4] = ADD2_result;
 							Qi_next[4] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[4]==9)begin
 							Vi_next[4] = ADD3_result;
 							Qi_next[4] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[4]==10)begin
 							Vi_next[4] = MUL1_result;
 							Qi_next[4] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[4]==11)begin
 							Vi_next[4] = MUL2_result;
 							Qi_next[4] = 0;
 						end else begin
 							Vi_next[4] = 0;
-							Qi_next[4] = Qi[0];
+							Qi_next[4] = Qi[4];
 						end
 					end 
 					else begin
@@ -275,27 +275,27 @@ always@(*)begin
 					end
 
 					if(busy[5])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[5]==LS_idx+1&&LS_valid) begin
 							Vi_next[5] =LS_value;
 							Qi_next[5] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[5]==7)begin
 							Vi_next[5] = ADD1_result;
 							Qi_next[5] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[5]==8)begin
 							Vi_next[5] = ADD2_result;
 							Qi_next[5] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[5]==9)begin
 							Vi_next[5] = ADD3_result;
 							Qi_next[5] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[5]==10)begin
 							Vi_next[5] = MUL1_result;
 							Qi_next[5] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[5]==11)begin
 							Vi_next[5] = MUL2_result;
 							Qi_next[5] = 0;
 						end else begin
 							Vi_next[5] = 0;
-							Qi_next[5] = Qi[0];
+							Qi_next[5] = Qi[5];
 						end
 					end 
 					else begin
@@ -305,11 +305,13 @@ always@(*)begin
                 end
 
 		ENTRY1: begin
-					busy_next[0] = busy[0];
-					busy_next[2] = busy[2];
-					busy_next[3] = busy[3];
-					busy_next[4] = busy[4];
-					busy_next[5] = busy[5];
+					//if the previous head is 0 and the (prevoiuse head entry) is busy,the previouse head entry shud be freed 
+					//because this indicates the head had mved on
+					busy_next[0] = (busy[0] && (head==1))?0:busy[0];  
+					busy_next[2] = (busy[2] && (head==3))?0:busy[2];  
+					busy_next[3] = (busy[3] && (head==4))?0:busy[3]; 
+					busy_next[4] = (busy[4] && (head==5))?0:busy[4];  
+					busy_next[5] = (busy[5] && (head==6))?0:busy[5];  
 					addr_next[0] = addr[0];
 					addr_next[2] = addr[2];
 					addr_next[3] = addr[3];
@@ -376,27 +378,27 @@ always@(*)begin
                     end
 
 					if(busy[2])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[2]==LS_idx+1&&LS_valid) begin
 							Vi_next[2] =LS_value;
 							Qi_next[2] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[2]==7)begin
 							Vi_next[2] = ADD1_result;
 							Qi_next[2] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[2]==8)begin
 							Vi_next[2] = ADD2_result;
 							Qi_next[2] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[2]==9)begin
 							Vi_next[2] = ADD3_result;
 							Qi_next[2] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[2]==10)begin
 							Vi_next[2] = MUL1_result;
 							Qi_next[2] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[2]==11)begin
 							Vi_next[2] = MUL2_result;
 							Qi_next[2] = 0;
 						end else begin
 							Vi_next[2] = 0;
-							Qi_next[2] = Qi[0];
+							Qi_next[2] = Qi[2];
 						end
 					end 
 					else begin
@@ -405,27 +407,27 @@ always@(*)begin
 					end
 
 					if(busy[3])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[3]==LS_idx+1&&LS_valid) begin
 							Vi_next[3] =LS_value;
 							Qi_next[3] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[3]==7)begin
 							Vi_next[3] = ADD1_result;
 							Qi_next[3] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[3]==8)begin
 							Vi_next[3] = ADD2_result;
 							Qi_next[3] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[3]==9)begin
 							Vi_next[3] = ADD3_result;
 							Qi_next[3] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[3]==10)begin
 							Vi_next[3] = MUL1_result;
 							Qi_next[3] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[3]==11)begin
 							Vi_next[3] = MUL2_result;
 							Qi_next[3] = 0;
 						end else begin
 							Vi_next[3] = 0;
-							Qi_next[3] = Qi[0];
+							Qi_next[3] = Qi[3];
 						end
 					end 
 					else begin
@@ -434,27 +436,27 @@ always@(*)begin
 					end
 
 					if(busy[4])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[4]==LS_idx+1&&LS_valid) begin
 							Vi_next[4] =LS_value;
 							Qi_next[4] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[4]==7)begin
 							Vi_next[4] = ADD1_result;
 							Qi_next[4] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[4]==8)begin
 							Vi_next[4] = ADD2_result;
 							Qi_next[4] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[4]==9)begin
 							Vi_next[4] = ADD3_result;
 							Qi_next[4] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[4]==10)begin
 							Vi_next[4] = MUL1_result;
 							Qi_next[4] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[4]==11)begin
 							Vi_next[4] = MUL2_result;
 							Qi_next[4] = 0;
 						end else begin
 							Vi_next[4] = 0;
-							Qi_next[4] = Qi[0];
+							Qi_next[4] = Qi[4];
 						end
 					end 
 					else begin
@@ -463,27 +465,27 @@ always@(*)begin
 					end
 
 					if(busy[5])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[5]==LS_idx+1&&LS_valid) begin
 							Vi_next[5] =LS_value;
 							Qi_next[5] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[5]==7)begin
 							Vi_next[5] = ADD1_result;
 							Qi_next[5] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[5]==8)begin
 							Vi_next[5] = ADD2_result;
 							Qi_next[5] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[5]==9)begin
 							Vi_next[5] = ADD3_result;
 							Qi_next[5] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[5]==10)begin
 							Vi_next[5] = MUL1_result;
 							Qi_next[5] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[5]==11)begin
 							Vi_next[5] = MUL2_result;
 							Qi_next[5] = 0;
 						end else begin
 							Vi_next[5] = 0;
-							Qi_next[5] = Qi[0];
+							Qi_next[5] = Qi[5];
 						end
 					end 
 					else begin
@@ -494,11 +496,11 @@ always@(*)begin
 
 //TODO: complete the logic for rest of the states
 		ENTRY2: begin
-					busy_next[0] = busy[0];
-					busy_next[1] = busy[1];
-					busy_next[3] = busy[3];
-					busy_next[4] = busy[4];
-					busy_next[5] = busy[5];
+					busy_next[0] = (busy[0] && (head==1))?0:busy[0]; 
+					busy_next[1] = (busy[1] && (head==2))?0:busy[1];  
+					busy_next[3] = (busy[3] && (head==4))?0:busy[3]; 
+					busy_next[4] = (busy[4] && (head==5))?0:busy[4]; 
+					busy_next[5] = (busy[5] && (head==0))?0:busy[5]; 
 					addr_next[0] = addr[0];
 					addr_next[1] = addr[1];
 					addr_next[3] = addr[3];
@@ -536,27 +538,27 @@ always@(*)begin
 					end
 
 					if(busy[1])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[1]==LS_idx+1&&LS_valid) begin
 							Vi_next[1] =LS_value;
 							Qi_next[1] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[1]==7)begin
 							Vi_next[1] = ADD1_result;
 							Qi_next[1] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[1]==8)begin
 							Vi_next[1] = ADD2_result;
 							Qi_next[1] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[1]==9)begin
 							Vi_next[1] = ADD3_result;
 							Qi_next[1] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[1]==10)begin
 							Vi_next[1] = MUL1_result;
 							Qi_next[1] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[1]==11)begin
 							Vi_next[1] = MUL2_result;
 							Qi_next[1] = 0;
 						end else begin
 							Vi_next[1] = 0;
-							Qi_next[1] = Qi[0];
+							Qi_next[1] = Qi[1];
 						end
 					end 
 					else begin
@@ -580,27 +582,27 @@ always@(*)begin
                     end
 
 					if(busy[3])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[3]==LS_idx+1&&LS_valid) begin
 							Vi_next[3] =LS_value;
 							Qi_next[3] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[3]==7)begin
 							Vi_next[3] = ADD1_result;
 							Qi_next[3] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[3]==8)begin
 							Vi_next[3] = ADD2_result;
 							Qi_next[3] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[3]==9)begin
 							Vi_next[3] = ADD3_result;
 							Qi_next[3] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[3]==10)begin
 							Vi_next[3] = MUL1_result;
 							Qi_next[3] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[3]==11)begin
 							Vi_next[3] = MUL2_result;
 							Qi_next[3] = 0;
 						end else begin
 							Vi_next[3] = 0;
-							Qi_next[3] = Qi[0];
+							Qi_next[3] = Qi[3];
 						end
 					end 
 					else begin
@@ -609,27 +611,27 @@ always@(*)begin
 					end
 
 					if(busy[4])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[4]==LS_idx+1&&LS_valid) begin
 							Vi_next[4] =LS_value;
 							Qi_next[4] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[4]==7)begin
 							Vi_next[4] = ADD1_result;
 							Qi_next[4] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[4]==8)begin
 							Vi_next[4] = ADD2_result;
 							Qi_next[4] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[4]==9)begin
 							Vi_next[4] = ADD3_result;
 							Qi_next[4] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[4]==10)begin
 							Vi_next[4] = MUL1_result;
 							Qi_next[4] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[4]==11)begin
 							Vi_next[4] = MUL2_result;
 							Qi_next[4] = 0;
 						end else begin
 							Vi_next[4] = 0;
-							Qi_next[4] = Qi[0];
+							Qi_next[4] = Qi[4];
 						end
 					end 
 					else begin
@@ -638,27 +640,27 @@ always@(*)begin
 					end
 
 					if(busy[5])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[5]==LS_idx+1&&LS_valid) begin
 							Vi_next[5] =LS_value;
 							Qi_next[5] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[5]==7)begin
 							Vi_next[5] = ADD1_result;
 							Qi_next[5] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[5]==8)begin
 							Vi_next[5] = ADD2_result;
 							Qi_next[5] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[5]==9)begin
 							Vi_next[5] = ADD3_result;
 							Qi_next[5] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[5]==10)begin
 							Vi_next[5] = MUL1_result;
 							Qi_next[5] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[5]==11)begin
 							Vi_next[5] = MUL2_result;
 							Qi_next[5] = 0;
 						end else begin
 							Vi_next[5] = 0;
-							Qi_next[5] = Qi[0];
+							Qi_next[5] = Qi[5];
 						end
 					end 
 					else begin
@@ -668,11 +670,11 @@ always@(*)begin
                 end
 
 		ENTRY3: begin
-					busy_next[0] = busy[0];
-					busy_next[1] = busy[1];
-					busy_next[2] = busy[2];
-					busy_next[4] = busy[4];
-					busy_next[5] = busy[5];
+					busy_next[0] = (busy[0] && (head==1))?0:busy[0]; 
+					busy_next[1] = (busy[1] && (head==2))?0:busy[1]; 
+					busy_next[2] = (busy[2] && (head==3))?0:busy[2]; 
+					busy_next[4] = (busy[4] && (head==5))?0:busy[4]; 
+					busy_next[5] = (busy[5] && (head==0))?0:busy[5]; 
 					addr_next[0] = addr[0];
 					addr_next[1] = addr[1];
 					addr_next[2] = addr[2];
@@ -710,27 +712,27 @@ always@(*)begin
 					end
 
 					if(busy[1])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[1]==LS_idx+1&&LS_valid) begin
 							Vi_next[1] =LS_value;
 							Qi_next[1] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[1]==7)begin
 							Vi_next[1] = ADD1_result;
 							Qi_next[1] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[1]==8)begin
 							Vi_next[1] = ADD2_result;
 							Qi_next[1] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[1]==9)begin
 							Vi_next[1] = ADD3_result;
 							Qi_next[1] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[1]==10)begin
 							Vi_next[1] = MUL1_result;
 							Qi_next[1] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[1]==11)begin
 							Vi_next[1] = MUL2_result;
 							Qi_next[1] = 0;
 						end else begin
 							Vi_next[1] = 0;
-							Qi_next[1] = Qi[0];
+							Qi_next[1] = Qi[1];
 						end
 					end 
 					else begin
@@ -739,27 +741,27 @@ always@(*)begin
 					end
 
 					if(busy[2])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[2]==LS_idx+1&&LS_valid) begin
 							Vi_next[2] =LS_value;
 							Qi_next[2] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[2]==7)begin
 							Vi_next[2] = ADD1_result;
 							Qi_next[2] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[2]==8)begin
 							Vi_next[2] = ADD2_result;
 							Qi_next[2] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[2]==9)begin
 							Vi_next[2] = ADD3_result;
 							Qi_next[2] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[2]==10)begin
 							Vi_next[2] = MUL1_result;
 							Qi_next[2] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[2]==11)begin
 							Vi_next[2] = MUL2_result;
 							Qi_next[2] = 0;
 						end else begin
 							Vi_next[2] = 0;
-							Qi_next[2] = Qi[0];
+							Qi_next[2] = Qi[2];
 						end
 					end 
 					else begin
@@ -783,27 +785,27 @@ always@(*)begin
                     end
 
 					if(busy[4])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[4]==LS_idx+1&&LS_valid) begin
 							Vi_next[4] =LS_value;
 							Qi_next[4] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[4]==7)begin
 							Vi_next[4] = ADD1_result;
 							Qi_next[4] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[4]==8)begin
 							Vi_next[4] = ADD2_result;
 							Qi_next[4] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[4]==9)begin
 							Vi_next[4] = ADD3_result;
 							Qi_next[4] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[4]==10)begin
 							Vi_next[4] = MUL1_result;
 							Qi_next[4] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[4]==11)begin
 							Vi_next[4] = MUL2_result;
 							Qi_next[4] = 0;
 						end else begin
 							Vi_next[4] = 0;
-							Qi_next[4] = Qi[0];
+							Qi_next[4] = Qi[4];
 						end
 					end 
 					else begin
@@ -812,27 +814,27 @@ always@(*)begin
 					end
 
 					if(busy[5])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[5]==LS_idx+1&&LS_valid) begin
 							Vi_next[5] =LS_value;
 							Qi_next[5] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[5]==7)begin
 							Vi_next[5] = ADD1_result;
 							Qi_next[5] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[5]==8)begin
 							Vi_next[5] = ADD2_result;
 							Qi_next[5] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[5]==9)begin
 							Vi_next[5] = ADD3_result;
 							Qi_next[5] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[5]==10)begin
 							Vi_next[5] = MUL1_result;
 							Qi_next[5] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[5]==11)begin
 							Vi_next[5] = MUL2_result;
 							Qi_next[5] = 0;
 						end else begin
 							Vi_next[5] = 0;
-							Qi_next[5] = Qi[0];
+							Qi_next[5] = Qi[5];
 						end
 					end 
 					else begin
@@ -842,11 +844,11 @@ always@(*)begin
                 end
 
 		ENTRY4: begin
-					busy_next[0] = busy[0];
-					busy_next[1] = busy[1];					
-					busy_next[2] = busy[2];
-					busy_next[3] = busy[3];
-					busy_next[5] = busy[5];
+					busy_next[0] = (busy[0] && (head==1))?0:busy[0];  
+					busy_next[1] = (busy[1] && (head==2))?0:busy[1];  
+					busy_next[2] = (busy[2] && (head==3))?0:busy[2];  
+					busy_next[3] = (busy[3] && (head==4))?0:busy[3];  
+					busy_next[5] = (busy[5] && (head==0))?0:busy[5]; 
 					addr_next[0] = addr[0];
 					addr_next[1] = addr[1];
 					addr_next[2] = addr[2];
@@ -884,27 +886,27 @@ always@(*)begin
 					end
 
 					if(busy[1])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[1]==LS_idx+1&&LS_valid) begin
 							Vi_next[1] =LS_value;
 							Qi_next[1] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[1]==7)begin
 							Vi_next[1] = ADD1_result;
 							Qi_next[1] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[1]==8)begin
 							Vi_next[1] = ADD2_result;
 							Qi_next[1] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[1]==9)begin
 							Vi_next[1] = ADD3_result;
 							Qi_next[1] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[1]==10)begin
 							Vi_next[1] = MUL1_result;
 							Qi_next[1] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[1]==11)begin
 							Vi_next[1] = MUL2_result;
 							Qi_next[1] = 0;
 						end else begin
 							Vi_next[1] = 0;
-							Qi_next[1] = Qi[0];
+							Qi_next[1] = Qi[1];
 						end
 					end 
 					else begin
@@ -913,52 +915,52 @@ always@(*)begin
 					end
 
 					if(busy[2])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[2]==LS_idx+1&&LS_valid) begin
 							Vi_next[2] =LS_value;
 							Qi_next[2] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[2]==7)begin
 							Vi_next[2] = ADD1_result;
 							Qi_next[2] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[2]==8)begin
 							Vi_next[2] = ADD2_result;
 							Qi_next[2] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[2]==9)begin
 							Vi_next[2] = ADD3_result;
 							Qi_next[2] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[2]==10)begin
 							Vi_next[2] = MUL1_result;
 							Qi_next[2] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[2]==11)begin
 							Vi_next[2] = MUL2_result;
 							Qi_next[2] = 0;
 						end else begin
 							Vi_next[2] = 0;
-							Qi_next[2] = Qi[0];
+							Qi_next[2] = Qi[2];
 						end
 					end
 
 					if(busy[3])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[3]==LS_idx+1&&LS_valid) begin
 							Vi_next[3] =LS_value;
 							Qi_next[3] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[3]==7)begin
 							Vi_next[3] = ADD1_result;
 							Qi_next[3] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[3]==8)begin
 							Vi_next[3] = ADD2_result;
 							Qi_next[3] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[3]==9)begin
 							Vi_next[3] = ADD3_result;
 							Qi_next[3] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[3]==10)begin
 							Vi_next[3] = MUL1_result;
 							Qi_next[3] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[3]==11)begin
 							Vi_next[3] = MUL2_result;
 							Qi_next[3] = 0;
 						end else begin
 							Vi_next[3] = 0;
-							Qi_next[3] = Qi[0];
+							Qi_next[3] = Qi[3];
 						end
 					end 
 					else begin
@@ -982,27 +984,27 @@ always@(*)begin
                     end
 
 					if(busy[5])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[5]==LS_idx+1&&LS_valid) begin
 							Vi_next[5] =LS_value;
 							Qi_next[5] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[5]==7)begin
 							Vi_next[5] = ADD1_result;
 							Qi_next[5] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[5]==8)begin
 							Vi_next[5] = ADD2_result;
 							Qi_next[5] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[5]==9)begin
 							Vi_next[5] = ADD3_result;
 							Qi_next[5] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[5]==10)begin
 							Vi_next[5] = MUL1_result;
 							Qi_next[5] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[5]==11)begin
 							Vi_next[5] = MUL2_result;
 							Qi_next[5] = 0;
 						end else begin
 							Vi_next[5] = 0;
-							Qi_next[5] = Qi[0];
+							Qi_next[5] = Qi[5];
 						end
 					end 
 					else begin
@@ -1012,11 +1014,11 @@ always@(*)begin
                 end
 
 		ENTRY5: begin
-					busy_next[0] = busy[0];
-					busy_next[1] = busy[1];
-					busy_next[2] = busy[2];
-					busy_next[3] = busy[3];
-					busy_next[4] = busy[4];
+					busy_next[0] = (busy[0] && (head==1))?0:busy[0]; 
+					busy_next[1] = (busy[1] && (head==2))?0:busy[1];  
+					busy_next[2] = (busy[2] && (head==3))?0:busy[2]; 
+					busy_next[3] = (busy[3] && (head==4))?0:busy[3]; 
+					busy_next[4] = (busy[4] && (head==5))?0:busy[4]; 
 					addr_next[0] = addr[0];
 					addr_next[1] = addr[1];
 					addr_next[2] = addr[2];
@@ -1054,27 +1056,27 @@ always@(*)begin
 					end
 
 					if(busy[1])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[1]==LS_idx+1&&LS_valid) begin
 							Vi_next[1] =LS_value;
 							Qi_next[1] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[1]==7)begin
 							Vi_next[1] = ADD1_result;
 							Qi_next[1] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[1]==8)begin
 							Vi_next[1] = ADD2_result;
 							Qi_next[1] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[1]==9)begin
 							Vi_next[1] = ADD3_result;
 							Qi_next[1] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[1]==10)begin
 							Vi_next[1] = MUL1_result;
 							Qi_next[1] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[1]==11)begin
 							Vi_next[1] = MUL2_result;
 							Qi_next[1] = 0;
 						end else begin
 							Vi_next[1] = 0;
-							Qi_next[1] = Qi[0];
+							Qi_next[1] = Qi[1];
 						end
 					end 
 					else begin
@@ -1083,52 +1085,52 @@ always@(*)begin
 					end
 
 					if(busy[2])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[2]==LS_idx+1&&LS_valid) begin
 							Vi_next[2] =LS_value;
 							Qi_next[2] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[2]==7)begin
 							Vi_next[2] = ADD1_result;
 							Qi_next[2] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[2]==8)begin
 							Vi_next[2] = ADD2_result;
 							Qi_next[2] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[2]==9)begin
 							Vi_next[2] = ADD3_result;
 							Qi_next[2] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[2]==10)begin
 							Vi_next[2] = MUL1_result;
 							Qi_next[2] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[2]==11)begin
 							Vi_next[2] = MUL2_result;
 							Qi_next[2] = 0;
 						end else begin
 							Vi_next[2] = 0;
-							Qi_next[2] = Qi[0];
+							Qi_next[2] = Qi[2];
 						end
 					end
 
 					if(busy[3])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[3]==LS_idx+1&&LS_valid) begin
 							Vi_next[3] =LS_value;
 							Qi_next[3] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[3]==7)begin
 							Vi_next[3] = ADD1_result;
 							Qi_next[3] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[3]==8)begin
 							Vi_next[3] = ADD2_result;
 							Qi_next[3] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[3]==9)begin
 							Vi_next[3] = ADD3_result;
 							Qi_next[3] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[3]==10)begin
 							Vi_next[3] = MUL1_result;
 							Qi_next[3] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[3]==11)begin
 							Vi_next[3] = MUL2_result;
 							Qi_next[3] = 0;
 						end else begin
 							Vi_next[3] = 0;
-							Qi_next[3] = Qi[0];
+							Qi_next[3] = Qi[3];
 						end
 					end 
 					else begin
@@ -1137,27 +1139,27 @@ always@(*)begin
 					end
 
 					if(busy[4])begin
-						if(Qi[0]==LS_idx+1&&LS_valid) begin
+						if(Qi[4]==LS_idx+1&&LS_valid) begin
 							Vi_next[4] =LS_value;
 							Qi_next[4] = 0;
-						end else if(ADD1_valid&&Qi[0]==7)begin
+						end else if(ADD1_valid&&Qi[4]==7)begin
 							Vi_next[4] = ADD1_result;
 							Qi_next[4] = 0;
-						end else if(ADD2_valid&&Qi[0]==8)begin
+						end else if(ADD2_valid&&Qi[4]==8)begin
 							Vi_next[4] = ADD2_result;
 							Qi_next[4] = 0;
-						end else if(ADD3_valid&&Qi[0]==9)begin
+						end else if(ADD3_valid&&Qi[4]==9)begin
 							Vi_next[4] = ADD3_result;
 							Qi_next[4] = 0;
-						end else if(MUL1_valid&&Qi[0]==10)begin
+						end else if(MUL1_valid&&Qi[4]==10)begin
 							Vi_next[4] = MUL1_result;
 							Qi_next[4] = 0;
-						end else if(MUL2_valid&&Qi[0]==11)begin
+						end else if(MUL2_valid&&Qi[4]==11)begin
 							Vi_next[4] = MUL2_result;
 							Qi_next[4] = 0;
 						end else begin
 							Vi_next[4] = 0;
-							Qi_next[4] = Qi[0];
+							Qi_next[4] = Qi[4];
 						end
 					end 
 					else begin
@@ -1257,8 +1259,9 @@ end
 //use head value to determine where  output valus come from and validity
 assign rd_addr = addr[head_next];//addr[head];
 assign wr_addr = addr[head_next];//addr[head];
-assign wen = ((Op[head]==5)&&state_o==EXE)?1:0;//turn on wen if the head is a store instruction and is in EXE state
-assign data_out = Qi[head];
+//assign wen = ((Op[head]==5)&&state_o==EXE)?1:0;//turn on wen if the head is a store instruction and is in EXE state
+assign wen = ((Op[head]==5)&&Qi[head]==0&&state_o==WAIT)?1:0;
+assign data_out = Vi[head];
 
 assign valid_out0 = (head==0&&state_o==EXE)?1:0;
 assign valid_out1 = (head==1&&state_o==EXE)?1:0;

@@ -35,6 +35,7 @@ always@(posedge clk)begin
 		Qj <= 0;
 		Qk <= 0; 
 		Op <= 0;
+		timer <= 0;
 	end else begin 
 		state <= next_state;
         Vj <= Vj_next;
@@ -42,6 +43,7 @@ always@(posedge clk)begin
         Qj <= Qj_next;
         Qk <= Qk_next;
 		Op <= Op_next;
+		timer <= timer_next;
 	end
 end
 //next state logic

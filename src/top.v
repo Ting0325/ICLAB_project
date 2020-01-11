@@ -200,7 +200,7 @@ RS_top RS_top0(
 	.ADD2_start(ADD2_start),
 	.ADD3_Vj(ADD3_Vj),
 	.ADD3_Vk(ADD3_Vk),
-	.ADD3_Op(ADD2_op),
+	.ADD3_Op(ADD3_op),
 	.ADD3_start(ADD3_start),
 
 	.MULT1_Vj(MULT1_Vj),

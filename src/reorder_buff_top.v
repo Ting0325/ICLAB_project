@@ -214,7 +214,7 @@ always@(*) begin
 	end else if(waiting_for0==8 && ADD2_valid) begin
 		valid0 = 1;
 		value0 = ADD2_result;
-	end else if(waiting_for0==9 && ADD2_valid) begin
+	end else if(waiting_for0==9 && ADD3_valid) begin
 		valid0 = 1;
 		value0 = ADD3_result;
 	end else if(waiting_for0==10 && MULT1_valid) begin
@@ -239,7 +239,7 @@ always@(*) begin
 	end else if(waiting_for1==8 && ADD2_valid) begin
 		valid1 = 1;
 		value1 = ADD2_result;
-	end else if(waiting_for1==9 && ADD2_valid) begin
+	end else if(waiting_for1==9 && ADD3_valid) begin
 		valid1 = 1;
 		value1 = ADD3_result;
 	end else if(waiting_for1==10 && MULT1_valid) begin
@@ -264,7 +264,7 @@ always@(*) begin
 	end else if(waiting_for2==8 && ADD2_valid) begin
 		valid2 = 1;
 		value2 = ADD2_result;
-	end else if(waiting_for2==9 && ADD2_valid) begin
+	end else if(waiting_for2==9 && ADD3_valid) begin
 		valid2 = 1;
 		value2 = ADD3_result;
 	end else if(waiting_for2==10 && MULT1_valid) begin
@@ -289,7 +289,7 @@ always@(*) begin
 	end else if(waiting_for3==8 && ADD2_valid) begin
 		valid3 = 1;
 		value3 = ADD2_result;
-	end else if(waiting_for3==9 && ADD2_valid) begin
+	end else if(waiting_for3==9 && ADD3_valid) begin
 		valid3 = 1;
 		value3 = ADD3_result;
 	end else if(waiting_for3==10 && MULT1_valid) begin
@@ -314,7 +314,7 @@ always@(*) begin
 	end else if(waiting_for4==8 && ADD2_valid) begin
 		valid4 = 1;
 		value4 = ADD2_result;
-	end else if(waiting_for4==9 && ADD2_valid) begin
+	end else if(waiting_for4==9 && ADD3_valid) begin
 		valid4 = 1;
 		value4 = ADD3_result;
 	end else if(waiting_for4==10 && MULT1_valid) begin
@@ -339,7 +339,7 @@ always@(*) begin
 	end else if(waiting_for5==8 && ADD2_valid) begin
 		valid5 = 1;
 		value5 = ADD2_result;
-	end else if(waiting_for5==9 && ADD2_valid) begin
+	end else if(waiting_for5==9 && ADD3_valid) begin
 		valid5 = 1;
 		value5 = ADD3_result;
 	end else if(waiting_for5==10 && MULT1_valid) begin
@@ -364,7 +364,7 @@ always@(*) begin
 	end else if(waiting_for6==8 && ADD2_valid) begin
 		valid6 = 1;
 		value6 = ADD2_result;
-	end else if(waiting_for6==9 && ADD2_valid) begin
+	end else if(waiting_for6==9 && ADD3_valid) begin
 		valid6 = 1;
 		value6 = ADD3_result;
 	end else if(waiting_for6==10 && MULT1_valid) begin
@@ -389,7 +389,7 @@ always@(*) begin
 	end else if(waiting_for7==8 && ADD2_valid) begin
 		valid7 = 1;
 		value7 = ADD2_result;
-	end else if(waiting_for7==9 && ADD2_valid) begin
+	end else if(waiting_for7==9 && ADD3_valid) begin
 		valid7 = 1;
 		value7 = ADD3_result;
 	end else if(waiting_for7==10 && MULT1_valid) begin

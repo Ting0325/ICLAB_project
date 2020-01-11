@@ -824,7 +824,7 @@ LS_buff LS_buff(
 	.offset(imm),
 	.rs(Vk),//is the value from the register that contains the address (i.e rs1 ) value is from Vk
 	.Vi_in(Vj),//is the value from the register that contains the data to be stored (i.e rs2 ) value is from Vj
-	.Qi_in(Qk),//the renamed value for rs2
+	.Qi_in(Qj),//the renamed value for rs2
 	.rd_addr(LS_addr_rd),
 	.wr_addr(LS_addr_wr),
 	.data_out(LS_data),
