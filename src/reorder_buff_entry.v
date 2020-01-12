@@ -25,7 +25,7 @@ reg [31:0] val_next;
 reg [31:0] instruction,instruction_next;
 
 //FSM
-localparam IDLE = 0 , WAIT = 1,COMMIT = 2;
+localparam IDLE = 2'd0 , WAIT = 2'd1, COMMIT = 2'd2;
 reg [1:0] state,next_state;
 
 
@@ -96,6 +96,13 @@ always@(*)begin
 						next_state = COMMIT;
 					end
 				end
+		default: begin
+					busy = 0;
+					from_next = from;
+					val_next = val;
+					next_state = state;
+					instruction_next = instruction;
+				 end
 	endcase
 end
 

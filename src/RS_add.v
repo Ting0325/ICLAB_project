@@ -26,7 +26,7 @@ reg [1:0] timer,timer_next;
 
 //FSM
 reg [1:0] state ,next_state;
-localparam IDLE = 0,WAIT = 1,EXE = 2;
+localparam IDLE = 2'd0,WAIT = 2'd1,EXE = 2'd2;
 always@(posedge clk)begin
 	if(~rst_n)begin
 		state <= IDLE;
@@ -122,6 +122,7 @@ always@(*)begin
 					Vk_next = 0;
 					Qj_next = 0;
 					Qk_next = 0;
+                    Op_next = 0;					
 				end
 	endcase
 end

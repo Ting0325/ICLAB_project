@@ -21,7 +21,7 @@ module regfile
 
 reg [dw-1:0] gpr [31:0];  //declare 32 32-bit general purpose register (gpr)
 
-always@(posedge clk or negedge rst_n) begin
+always@(posedge clk) begin
   if(~rst_n) begin
     gpr[0]  <= 32'd0;
     gpr[1]  <= 32'd1;

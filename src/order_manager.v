@@ -63,7 +63,6 @@ inst_handler inst_handler0(
 	.clk(clk),
 	.rst_n(rst_n),
 	.start(start),
-	.instruction(instruction),
 	.operation(operation),
 
 	.ls_entry(ls_entry),
@@ -107,8 +106,7 @@ reorder_buff_top reorder_buff_top0(
 	.LS_valid(LS_valid),
 	.LS_value(LS_value),
 	.LS_idx(LS_idx),
-	.rs1(rs1),
-	.rs2(rs2),
+
 
 	.busy0(busy_rb0),
 	.busy1(busy_rb1),

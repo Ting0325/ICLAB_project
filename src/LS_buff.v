@@ -22,8 +22,8 @@ module LS_buff(
 	input [31:0] rs, //from the reg that contains the address
 	input [31:0] Vi_in,// the value to store is actually rs2
 	input [3:0] Qi_in,
-	output [18:0] rd_addr,
-	output [18:0] wr_addr,
+	output [9:0] rd_addr,
+	output [9:0] wr_addr,
 	output [31:0] data_out,
 	output wen,
 	output  valid_out0,
@@ -43,13 +43,13 @@ module LS_buff(
 wire valid_out0_next,valid_out1_next,valid_out2_next,valid_out3_next,valid_out4_next,valid_out5_next;
 
 
-localparam ENTRY0=0,ENTRY1=1,ENTRY2=2,ENTRY3=3,ENTRY4=4,ENTRY5=5;
+localparam ENTRY0=3'd0,ENTRY1=3'd1,ENTRY2=3'd2,ENTRY3=3'd3,ENTRY4=3'd4,ENTRY5=3'd5;
 reg [2:0] state,next_state;
 reg [2:0]head,head_next;
 reg busy[0:5];
 reg busy_next[0:5];
-reg [18:0] addr [0:5];
-reg [18:0] addr_next [0:5];
+reg [9:0] addr [0:5];
+reg [9:0] addr_next [0:5];
 reg	[31:0] Vi [0:5];
 reg [31:0] Vi_next [0:5];
 reg [3:0] Qi [0:5];
@@ -61,7 +61,6 @@ reg valid[0:5];
 always@(posedge clk)begin
 	if(~rst_n)begin
 		state <= ENTRY0; 
-		head <= 0;
 		busy[0] <= 0;
 		busy[1] <= 0;
 		busy[2] <= 0;
@@ -94,7 +93,6 @@ always@(posedge clk)begin
 		Vi[5] <= 0;
 	end else begin 
 		state <= next_state;
-		head <= head_next;
 		busy[0] <= busy_next[0];
 		busy[1] <= busy_next[1];
 		busy[2] <= busy_next[2];
@@ -141,6 +139,11 @@ always@(*)begin
 					addr_next[3] = addr[3];
 					addr_next[4] = addr[4];
 					addr_next[5] = addr[5];
+					Op_next[1] = Op[1];
+					Op_next[2] = Op[2];
+					Op_next[3] = Op[3];
+					Op_next[4] = Op[4];
+					Op_next[5] = Op[5];
 					//Vi_next[0] = (Qi[0]==0)?Vi[0]:/*use Qi[0]and the valid for that input as selece*/;
 
                     if(sel)begin//the values for the current entry is controlled here
@@ -155,6 +158,7 @@ always@(*)begin
                         addr_next[0] = addr[0];
                         Vi_next[0] = Vi[0];
                         Qi_next[0] = Qi[0];
+						Op_next[0] = Op[0];
                         next_state = ENTRY0;
                     end
 
@@ -317,6 +321,11 @@ always@(*)begin
 					addr_next[3] = addr[3];
 					addr_next[4] = addr[4];
 					addr_next[5] = addr[5];
+					Op_next[0] = Op[0];
+					Op_next[2] = Op[2];
+					Op_next[3] = Op[3];
+					Op_next[4] = Op[4];
+					Op_next[5] = Op[5];
 					//Vi_next[0] = (Qi[0]==0)?Vi[0]:/*use Qi[0]and the valid for that input as selece*/;
 					if(busy[0])begin
 						if(Qi[0]==LS_idx+1&&LS_valid) begin
@@ -374,6 +383,7 @@ always@(*)begin
                         addr_next[1] = addr[1];
                         Vi_next[1] = Vi[1];
                         Qi_next[1] = Qi[1];
+						Op_next[1] = Op[1];
                         next_state = ENTRY1;
                     end
 
@@ -506,6 +516,11 @@ always@(*)begin
 					addr_next[3] = addr[3];
 					addr_next[4] = addr[4];
 					addr_next[5] = addr[5];
+					Op_next[0] = Op[0];
+					Op_next[1] = Op[1];
+					Op_next[3] = Op[3];
+					Op_next[4] = Op[4];
+					Op_next[5] = Op[5];
 					//Vi_next[0] = (Qi[0]==0)?Vi[0]:/*use Qi[0]and the valid for that input as selece*/;
 
 					if(busy[0])begin
@@ -578,6 +593,7 @@ always@(*)begin
                         addr_next[2] = addr[2];
                         Vi_next[2] = Vi[2];
                         Qi_next[2] = Qi[2];
+						Op_next[2] = Op[2];
                         next_state = ENTRY2;
                     end
 
@@ -680,6 +696,11 @@ always@(*)begin
 					addr_next[2] = addr[2];
 					addr_next[4] = addr[4];
 					addr_next[5] = addr[5];
+					Op_next[0] = Op[0];
+					Op_next[1] = Op[1];
+					Op_next[2] = Op[2];
+					Op_next[4] = Op[4];
+					Op_next[5] = Op[5];
 					//Vi_next[0] = (Qi[0]==0)?Vi[0]:/*use Qi[0]and the valid for that input as selece*/;
 
 					if(busy[0])begin
@@ -781,6 +802,7 @@ always@(*)begin
                         addr_next[3] = addr[3];
                         Vi_next[3] = Vi[3];
                         Qi_next[3] = Qi[3];
+						Op_next[3] = Op[3];
                         next_state = ENTRY3;
                     end
 
@@ -854,6 +876,11 @@ always@(*)begin
 					addr_next[2] = addr[2];
 					addr_next[3] = addr[3];
 					addr_next[5] = addr[5];
+					Op_next[0] = Op[0];
+					Op_next[1] = Op[1];
+					Op_next[2] = Op[2];
+					Op_next[3] = Op[3];
+					Op_next[5] = Op[5];
 					//Vi_next[0] = (Qi[0]==0)?Vi[0]:/*use Qi[0]and the valid for that input as selece*/;
 
 					if(busy[0])begin
@@ -938,6 +965,10 @@ always@(*)begin
 							Qi_next[2] = Qi[2];
 						end
 					end
+					else begin
+						Vi_next[2] = 0;
+						Qi_next[2] = 0;						
+					end
 
 					if(busy[3])begin
 						if(Qi[3]==LS_idx+1&&LS_valid) begin
@@ -980,6 +1011,7 @@ always@(*)begin
                         addr_next[4] = addr[4];
                         Vi_next[4] = Vi[4];
                         Qi_next[4] = Qi[4];
+						Op_next[4] = Op[4];
                         next_state = ENTRY4;
                     end
 
@@ -1024,6 +1056,11 @@ always@(*)begin
 					addr_next[2] = addr[2];
 					addr_next[3] = addr[3];
 					addr_next[4] = addr[4];
+					Op_next[0] = Op[0];
+					Op_next[1] = Op[1];
+					Op_next[2] = Op[2];
+					Op_next[3] = Op[3];
+					Op_next[4] = Op[4];
 					//Vi_next[0] = (Qi[0]==0)?Vi[0]:/*use Qi[0]and the valid for that input as selece*/;
 
 					if(busy[0])begin
@@ -1107,6 +1144,10 @@ always@(*)begin
 							Vi_next[2] = 0;
 							Qi_next[2] = Qi[2];
 						end
+					end
+					else begin
+						Vi_next[2] = 0;
+						Qi_next[2] = 0;						
 					end
 
 					if(busy[3])begin
@@ -1179,16 +1220,50 @@ always@(*)begin
                         addr_next[5] = addr[5];
                         Vi_next[5] = Vi[5];
                         Qi_next[5] = Qi[5];
+						Op_next[5] = Op[5];
                         next_state = ENTRY4;
                     end
 				end
+			default: begin
+						busy_next[0] = busy[0];
+						busy_next[1] = busy[1];
+						busy_next[2] = busy[2];
+						busy_next[3] = busy[3];
+						busy_next[4] = busy[4];
+						busy_next[5] = busy[5];
+						addr_next[0] = addr[0];
+						addr_next[1] = addr[1];
+						addr_next[2] = addr[2];
+						addr_next[3] = addr[3];
+						addr_next[4] = addr[4];
+						addr_next[5] = addr[5];
+						Vi_next[0] = Vi[0];
+						Vi_next[1] = Vi[1];
+						Vi_next[2] = Vi[2];
+						Vi_next[3] = Vi[3];
+						Vi_next[4] = Vi[4];
+						Vi_next[5] = Vi[5];
+						Qi_next[0] = Qi[0];
+						Qi_next[1] = Qi[1];
+						Qi_next[2] = Qi[2];
+						Qi_next[3] = Qi[3];
+						Qi_next[4] = Qi[4];
+						Qi_next[5] = Qi[5];
+						Op_next[0] = Op[0];
+						Op_next[1] = Op[1];
+						Op_next[2] = Op[2];
+						Op_next[3] = Op[3];
+						Op_next[4] = Op[4];						
+						Op_next[5] = Op[5];
+						next_state = state;						
+			end
 	endcase
 end
 
 //head logic
 //use a FSM to keep track of the state of the head and control busy values and
 //head values
-localparam IDLE=0, WAIT=1, EXE=2;
+localparam IDLE=2'd0, WAIT=2'd1, EXE=2'd2;
 reg [1:0] state_o,next_state_o;
 reg [1:0] exe_count,exe_count_next;
 always@(posedge clk)begin
@@ -1253,6 +1328,10 @@ always@(*)begin
 						end
 					end
 				end
+		default: begin
+					head_next = 0;
+					next_state_o = 0;
+				 end		
 	endcase
 end
 //output logic

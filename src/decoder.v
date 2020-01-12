@@ -45,6 +45,7 @@ always@(*) begin
 											10'b0100000_000 : operation = 1; //SUB
 											10'b0000001_000 : operation = 2; //MUL
 											10'b0000001_100 : operation = 3; //DIV
+											default: operation = 0;
 									 endcase
 								 end
 			7'b0000011: operation = 4; //LOAD

@@ -36,7 +36,8 @@ end
 always@(*)begin
 	case(Op)
 		0:	delay0_next = a + b;
-		1:   delay0_next = b - a;
+		1:  delay0_next = b - a;
+		default: delay0_next = delay0;
 	endcase
 end
 

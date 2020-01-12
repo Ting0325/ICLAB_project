@@ -60,8 +60,8 @@ module RS_top(
 	output  [2:0] MULT2_Op,
 	output 	MULT2_start,	
 	
-	output [18:0] LS_addr_rd, //read address to dcache
-	output [18:0] LS_addr_wr, //write address to dcache
+	output [9:0] LS_addr_rd, //read address to dcache
+	output [9:0] LS_addr_wr, //write address to dcache
 	output [31:0] LS_data,
 	output LS_wen,
 	//busy information from each reservation station
@@ -80,15 +80,15 @@ module RS_top(
 
 localparam TIME_add = 2, TIME_mul = 10, TIME_div = 40;
 
-reg [18:0] LOAD1_addr;
-reg [18:0]LOAD2_addr;
-reg [18:0]LOAD3_addr;
+reg [9:0] LOAD1_addr;
+reg [9:0]LOAD2_addr;
+reg [9:0]LOAD3_addr;
 
-reg [18:0] STORE1_addr;
+reg [9:0] STORE1_addr;
 reg [3:0] STORE1_Qi;
-reg [18:0] STORE2_addr;
+reg [9:0] STORE2_addr;
 reg [3:0] STORE2_Qi;
-reg [18:0] STORE3_addr;
+reg [9:0] STORE3_addr;
 reg [3:0] STORE3_Qi;
 
 

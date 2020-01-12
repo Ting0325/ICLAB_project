@@ -1,6 +1,6 @@
 module i_cache #(
   parameter DATA_WIDTH=32,                 //width of data bus
-  parameter ADDR_WIDTH=19                  //width of addresses buses
+  parameter ADDR_WIDTH=10                  //width of addresses buses
 )(
   input      [DATA_WIDTH-1:0] dina,       //data to be written
   input      [ADDR_WIDTH-1:0] addrb,  //address for read operation

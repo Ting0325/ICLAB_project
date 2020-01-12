@@ -2,7 +2,6 @@ module inst_handler(
 	input clk,
 	input rst_n,
 	input start,
-    input [31:0] instruction,
 	input [2:0] operation,
 
 	input [2:0] ls_entry,
@@ -27,7 +26,7 @@ module inst_handler(
 );
 reg [31:0] inst_count,inst_count_next;
 
-localparam LOAD = 4, STORE = 5, ADD = 0, SUB = 1, MUL = 2, DIV = 3; 
+localparam LOAD = 3'd4, STORE = 3'd5, ADD = 3'd0, SUB = 3'd1, MUL = 3'd2, DIV = 3'd3; 
 
 /* each incomming instruction is assigned an id to determin which reorder
  * buffer to log it

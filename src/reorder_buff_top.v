@@ -27,8 +27,7 @@ module reorder_buff_top(
 	input LS_valid,
 	input [31:0] LS_value,
 	input [2:0] LS_idx,
-	input [4:0] rs1,
-	input [4:0] rs2,
+
 
 	output busy0,
 	output busy1,

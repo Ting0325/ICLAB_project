@@ -2,12 +2,18 @@ module top(
 	input clk,
 	input rst_n,
 	input [31:0]i_instruction,
-	input [18:0] i_addr,
+	input [9:0] i_addr,
 	input i_wea,
-	input start
+	input start,
+	//
+	output [31:0] dina,       			 //data to be written
+	output [9:0] addr_dcache_rd,  		 //address for read operation
+	output [9:0] addr_dcache_wr,     //address for write operation
+	output wea,       //write enable signal
+	input [31:0] LS_value     //read data
 );
 
-reg [18:0] pc;//program counter
+reg [9:0] pc;//program counter
 wire [31:0] instruction;
 wire [4:0] rs1,rs2;
 wire [4:0] rd;
@@ -29,7 +35,7 @@ wire [31:0] MULT1_result;
 wire  MUL2_valid;
 wire [31:0] MULT2_result;
 wire LS_valid;
-wire [31:0]LS_value;
+//wire [31:0]LS_value;
 wire [2:0]LS_idx;
 
 
@@ -51,13 +57,14 @@ wire [31:0] MULT2_Vk;
 wire [2:0] MULT2_op;
 
 
-
+/*
 //d_cache
 wire [31:0] dina;
 wire wea; 
 
-wire [18:0] addr_dcache;
-
+wire [9:0] addr_dcache_rd;
+wire [9:0] addr_dcache_wr;
+*/
 //order manager
 wire [2:0] ls_entry;
 wire ls_full;
@@ -212,8 +219,8 @@ RS_top RS_top0(
 	.MULT2_Op(MULT2_op),
 	.MULT2_start(MUL2_start),
 
-	.LS_addr_rd(addr_dcache),
-	.LS_addr_wr(addr_dcache),
+	.LS_addr_rd(addr_dcache_rd),
+	.LS_addr_wr(addr_dcache_wr),
 	.LS_data(dina),
 	.LS_wen(wea),
 	.ADD1_busy(busy_add1),
@@ -285,15 +292,15 @@ EXE_mul EXE_MUL2(
     .result(MULT2_result)
 );
 
-
+/*
 //d-cache
 cache d_cache(
 	.dina(dina),       			 //data to be written
-	.addrb(addr_dcache),  		 //address for read operation
-	.addra(addr_dcache),     //address for write operation
+	.addrb(addr_dcache_rd),  		 //address for read operation
+	.addra(addr_dcache_wr),     //address for write operation
 	.wea(wea),       //write enable signal
 	.clk(clk),       //clock signal for write operation
 	.doutb(LS_value)      //read data
 );
-
+*/
 endmodule
